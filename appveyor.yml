@@ -23,7 +23,7 @@ install:
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
     powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -InstallDir 'c:\Program Files\dotnet'"
     for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
-    dotnet tool install --global dotnet-ilverify --prerelease
+    dotnet tool install --global dotnet-ilverify
     dotnet tool install --global dotnet-ilrepack
 nuget:
   project_feed: true
@@ -47,3 +47,4 @@ artifacts:
 before_deploy:
 - cmd: |
     rem precompile libraries for Nuget
+
