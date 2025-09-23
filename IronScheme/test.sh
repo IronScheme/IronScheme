@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-dotnet tool install -g dotnet-ilverify --prerelease
+dotnet tool install -g dotnet-ilverify
 
 dotnet build IronScheme.Tests/IronScheme.Tests.csproj -restore -m -tl:off -c Release -p:TargetFramework=net9.0 --no-incremental --force -v:q -clp:NoSummary
 dotnet build IronScheme.Tests/IronScheme.Tests.csproj -restore -m -tl:off -c Release -p:TargetFramework=net9.0 --no-incremental --force -v:q -clp:NoSummary
