@@ -54,7 +54,7 @@ IF %FX% == net20 (
 IF %FX% == net9.0 (
   where ilverify >nul 2>&1
   rem IF %ERRORLEVEL% NEQ 0
-  dotnet tool install -g dotnet-ilverify --prerelease
+  dotnet tool install -g dotnet-ilverify
 )
 
 rem where nunit3-console >nul 2>&1
@@ -85,4 +85,5 @@ exit /b 1
 :no_nunit
 echo Error: NUnit path not set correctly
 exit /b 1
+
 
