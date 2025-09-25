@@ -12,17 +12,17 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-2019]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         coverage: [false]
         include:
-          - os: windows-2019
+          - os: windows-latest
             coverage: true
 
     timeout-minutes: 20
 
     defaults:
       run:
-        shell: ${{ matrix.os == 'windows-2019' && 'cmd' || 'bash' }}
+        shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
         working-directory: ./IronScheme
 
     env:
