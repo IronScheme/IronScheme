@@ -66,6 +66,7 @@ See docs/license.txt. |#
     (ironscheme integrable)
     (ironscheme unsafe) 
     (ironscheme clr)
+    (ironscheme typed)
     (except (rnrs)
     
     flinteger?
@@ -125,18 +126,15 @@ See docs/license.txt. |#
     (lambda (x)
       (syntax-case x ()
         [(_ (name formals ...) body body* ...)
-          (with-syntax (((formals* ...) (generate-temporaries #'(formals ...)))
-                        ((type ...) (map (lambda (x) (datum->syntax x 'Double)) #'(formals ...))))        
-            (with-syntax (((checks ...) 
-              (map (lambda (f)
-                     (with-syntax ((f f))
-                       #'(unless (flonum? f) 
-                          (assertion-violation 'name "not a flonum" f))))
-                    #'(formals* ...))))
-              #'(define (name formals* ...)
-                  checks ...
-                   ((typed-lambda (formals ...) ((type ...) Object) body body* ...)
-                    formals* ...))))]))) 
+              #'(define: (name (formals : flonum) ... -> flonum)
+                   body body* ...)])))
+
+  (define-syntax define-fl?
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (name formals ...) body body* ...)
+              #'(define: (name (formals : flonum) ... -> bool)
+                  body body* ...)]))) 
                   
   (define-syntax define-fl*
     (lambda (x)
@@ -162,15 +160,11 @@ See docs/license.txt. |#
                   (string-append "$"
                     (symbol->string (syntax->datum #'name)))))))
             #'(define name
-                (case-lambda
-                  [(x1 x2)
-                    (unless (flonum? x1)
-                      (assertion-violation 'name "not a flonum" x1))
-                    (unless (flonum? x2)
-                      (assertion-violation 'name "not a flonum" x2))
+                (case-lambda:
+                  [((x1 : flonum) (x2 : flonum) -> bool)
                     (uname x1 x2)]
-                  [(x1 x2 . rest)
-                    (let f ((a x1)(b (cons x2 rest)))
+                  [((x1 : flonum) (x2 : flonum) #(rest) -> bool)
+                    (let: f (((a : flonum) x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
@@ -193,69 +187,49 @@ See docs/license.txt. |#
                   (string-append "$"
                     (symbol->string (syntax->datum #'name)))))))      
             #'(define name 
-                (case-lambda
-                  [() id]
-                  [(x1 x2)
-                    (unless (flonum? x1)
-                      (assertion-violation 'name "not a flonum" x1))
-                    (unless (flonum? x2)
-                      (assertion-violation 'name "not a flonum" x2))
+                (case-lambda:
+                  [(-> flonum) id]
+                  [((x1 : flonum) (x2 : flonum) -> flonum)
                     (uname x1 x2)]
-                  [args
+                  [(#(args) -> flonum)
                     (fold-left name (name) args)])))])))  
                     
   (define-fl-binop0 fl+ 0.0)                    
   (define-fl-binop0 fl* 1.0)
   
   (define-fl (fldenominator fl)
-    (if (or (flnan?* fl) (flinfinite?* fl))
+    (if ($or? (flnan? fl) (flinfinite? fl))
         1.0
         (real->flonum (denominator fl))))
       
   (define-fl (flnumerator fl)
-    (if (or (flnan?* fl) (flinfinite?* fl))
+    (if ($or? (flnan? fl) (flinfinite? fl))
         fl
         (real->flonum (numerator fl))))
   
   (define fl-
-    (case-lambda
-      [(x1)
-        (unless (flonum? x1)
-          (assertion-violation 'fl- "not a flonum" x1))
+    (case-lambda:
+      [((x1 : flonum) -> flonum)
         ($fl- x1)]
-      [(x1 x2)
-        (unless (flonum? x1)
-          (assertion-violation 'fl- "not a flonum" x1))
-        (unless (flonum? x2)
-          (assertion-violation 'fl- "not a flonum" x2))
+      [((x1 : flonum) (x2 : flonum) -> flonum)
         ($fl- x1 x2)]
-      [(x1 x2 . rest)
-        (unless (flonum? x1)
-          (assertion-violation 'fl- "not a flonum" x1))                      
+      [((x1 : flonum) (x2 : flonum) #(rest) -> flonum)
         (fold-left fl- x1 (cons x2 rest))]))
         
   (define fl/
-    (case-lambda
-      [(x1)
-        (unless (flonum? x1)
-          (assertion-violation 'fl/ "not a flonum" x1))
+    (case-lambda:
+      [((x1 : flonum) -> flonum)
         ($fl/ 1.0 x1)]
-      [(x1 x2)
-        (unless (flonum? x1)
-          (assertion-violation 'fl/ "not a flonum" x1))
-        (unless (flonum? x2)
-          (assertion-violation 'fl/ "not a flonum" x2))
+      [((x1 : flonum) (x2 : flonum) -> flonum)
         ($fl/ x1 x2)]
-      [(x1 x2 . rest)
-        (unless (flonum? x1)
-          (assertion-violation 'fl/ "not a flonum" x1))                      
+      [((x1 : flonum) (x2 : flonum) #(rest) -> flonum)
         (fold-left fl/ x1 (cons x2 rest))]))        
                                 
   (define-fl* (fldiv0 x1 x2)
     (let* ((d (fldiv* x1 x2))
            (m ($fl- x1 ($fl* d x2))))
       (cond 
-        [($fl<? m (flabs* ($fl/ x2 2.0))) d]
+        [($fl<? m (flabs ($fl/ x2 2.0))) d]
         [($fl<? 0.0 x2) ($fl+ d 1.0)]
         [else ($fl- d 1.0)])))
       
@@ -263,11 +237,11 @@ See docs/license.txt. |#
     ($fl- x1 ($fl* (fldiv* x1 x2) x2)))
 
   (define-fl (flmod0 x1 x2)
-    (if (flinfinite?* x2)
+    (if (flinfinite? x2)
         +nan.0
         ($fl- x1 ($fl* (fldiv0* x1 x2) x2))))
     
-  (define-fl (fldiv-and-mod x1 x2)
+  (define: (fldiv-and-mod (x1 : flonum) (x2 : flonum))
     (let ((d (fldiv* x1 x2)))
       (values d ($fl- x1 ($fl* d x2))))) 
       
@@ -276,22 +250,22 @@ See docs/license.txt. |#
       (flfloor* ($fl/ x1 x2))
       ($fl- (flfloor* ($fl/ x1 ($fl- x2))))))
 
-  (define-fl (fldiv0-and-mod0 x1 x2)
+  (define: (fldiv0-and-mod0 (x1 : flonum) (x2 : flonum))
     (let ((d (fldiv0* x1 x2)))
-      (if (flinfinite?* x2)
+      (if (flinfinite? x2)
           (values d +nan.0)
           (values d ($fl- x1 ($fl* d x2))))))
     
-  (define-fl (flinteger? fl)
+  (define-fl? (flinteger? fl)
     ($fl=? 0.0 (flmod* fl 1.0))) 
     
-  (define-fl* (flfinite? fl)
-    (not (or (flinfinite?* fl) (flnan?* fl))))
+  (define-fl? (flfinite? fl)
+    (not ($or? (flinfinite? fl) (flnan? fl))))
     
-  (define-fl* (flinfinite? fl)
+  (define-fl? (flinfinite? fl)
     (clr-static-call Double IsInfinity fl))
     
-  (define-fl* (flnan? fl)
+  (define-fl? (flnan? fl)
     (clr-static-call Double IsNaN fl))    
     
   (define-fl (flsin fl)
@@ -310,29 +284,17 @@ See docs/license.txt. |#
     (clr-static-call Math Acos fl))
 
   (define flatan 
-    (case-lambda 
-      [(fl)      
-        (unless (flonum? fl)
-          (assertion-violation 'flatan "not a flonum" fl))
+    (case-lambda: 
+      [((fl : flonum) -> flonum)      
         (clr-static-call Math Atan fl)]
-      [(fl1 fl2) 
-        (unless (flonum? fl1)
-          (assertion-violation 'flatan "not a flonum" fl1))
-        (unless (flonum? fl2)
-          (assertion-violation 'flatan "not a flonum" fl2))
+      [((fl1 : flonum) (fl2 : flonum) -> flonum) 
         (clr-static-call Math Atan2 fl1 fl2)]))
 
   (define fllog 
-    (case-lambda
-      [(fl)       
-        (unless (flonum? fl)
-          (assertion-violation 'fllog "not a flonum" fl))
+    (case-lambda:
+      [((fl : flonum) -> flonum)        
         (clr-static-call Math Log fl)]
-      [(fl1 fl2)  
-        (unless (flonum? fl1)
-          (assertion-violation 'fllog "not a flonum" fl1))
-        (unless (flonum? fl2)
-          (assertion-violation 'fllog "not a flonum" fl2))
+      [((fl1 : flonum) (fl2 : flonum) -> flonum) 
         (clr-static-call Math Log fl1 fl2)]))
 
   (define-fl (flsqrt fl)
@@ -356,24 +318,24 @@ See docs/license.txt. |#
   (define-fl (flround fl)
     (clr-static-call Math (Round Double) fl))    
     
-  (define-fl* (flabs fl)
+  (define-fl (flabs fl)
     (clr-static-call Math (Abs Double) fl)) 
     
-  (define-fl (flpositive? r)
+  (define-fl? (flpositive? r)
     ($fl<? 0.0 r))
     
-  (define-fl (flnegative? r)
+  (define-fl? (flnegative? r)
     ($fl>? 0.0 r))   
     
-  (define-fl (flzero? r)
+  (define-fl? (flzero? r)
     ($fl=? 0.0 r))           
     
-  (define-fl (fleven? n)
+  (define-fl? (fleven? n)
     (unless (integer-valued? n)
       (assertion-violation 'fleven? "not integer valued" n))
     ($fl=? 0.0 (flmod* n 2.0)))           
 
-  (define-fl (flodd? n)
+  (define-fl? (flodd? n)
     (unless (integer-valued? n)
       (assertion-violation 'flodd? "not integer valued" n))
     ($fl=? 1.0 (flmod* n 2.0)))      

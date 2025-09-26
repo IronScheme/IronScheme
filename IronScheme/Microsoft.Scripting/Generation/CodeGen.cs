@@ -785,12 +785,6 @@ namespace Microsoft.Scripting.Generation
             set { _paramsSlot = value; }
         }
 
-        [Conditional("DEBUG")]
-        public void EmitDebugMarker(string marker) {
-            EmitString(marker);
-            EmitCall(typeof(Debug), "WriteLine", new Type[] { typeof(string) });
-        }
-
         public ParameterBuilder DefineParameter(int position, ParameterAttributes attributes, string strParamName) {
             MethodBuilder builder = _methodInfo as MethodBuilder;
             if (builder != null) {
@@ -801,12 +795,6 @@ namespace Microsoft.Scripting.Generation
             {
               return cb.DefineParameter(position, attributes, strParamName);
             }
-#if CHECK_IF_NEEDED
-            DynamicMethod dm = _methodInfo as DynamicMethod;
-            if (dm != null) {
-                return dm.DefineParameter(position, attributes, strParamName);
-            }
-#endif
             throw new InvalidOperationException(Resources.InvalidOperation_DefineParameterBakedMethod);
         }
 
@@ -858,26 +846,10 @@ namespace Microsoft.Scripting.Generation
             ContextSlot.EmitGet(this);
         }
 
-        public void EmitEnvironmentOrNull() {
-            if (_environmentSlot != null) {
-                _environmentSlot.EmitGet(this);
-            } else {
-                EmitNull();
-            }
-        }
-
         public void EmitThis() {
             if (_methodInfo.IsStatic) throw new InvalidOperationException(Resources.InvalidOperation_ThisInStaticMethod);
             //!!! want to confirm this doesn't have a constant pool too
             Emit(OpCodes.Ldarg_0);
-        }
-
-        public void EmitExprAsObjectOrNull(Expression e) {
-            if (e == null) {
-                Emit(OpCodes.Ldnull);
-            } else {
-                e.EmitAsObject(this);
-            }
         }
 
         /// <summary>
@@ -1150,11 +1122,11 @@ namespace Microsoft.Scripting.Generation
               }
               else
               {
-                var cache = TypeGen.AddStaticField(delegateType, FieldAttributes.Private, "$p$" + delegateFunction.MethodInfo.Name);
-                TypeGen.TypeInitializer.EmitNull();
-                TypeGen.TypeInitializer.Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
-                TypeGen.TypeInitializer.Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
-                cache.EmitSet(TypeGen.TypeInitializer);
+                var cache = TypeGen.Procedures.AddStaticField(delegateType, FieldAttributes.Assembly | FieldAttributes.InitOnly, delegateFunction.MethodInfo.Name);
+                TypeGen.Procedures.TypeInitializer.EmitNull();
+                TypeGen.Procedures.TypeInitializer.Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
+                TypeGen.Procedures.TypeInitializer.Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
+                cache.EmitSet(TypeGen.Procedures.TypeInitializer);
                 cache.EmitGet(this);
               }
             }

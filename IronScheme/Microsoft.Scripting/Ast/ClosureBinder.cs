@@ -69,10 +69,6 @@ namespace Microsoft.Scripting.Ast
             internal void PublishReferences() {
                 _block.References = GetReferences();
             }
-
-            internal void AddGeneratorTemps(int count) {
-                _block.AddGeneratorTemps(count);
-            }
         }
 
         /// <summary>
@@ -140,11 +136,6 @@ namespace Microsoft.Scripting.Ast
             Block top = _stack.Pop();
             Debug.Assert(top.CodeBlock == block);
             top.PublishReferences();
-        }
-
-        private void AddGeneratorTemps(int count) {
-            Debug.Assert(_stack.Count > 0);
-            _stack.Peek().AddGeneratorTemps(count);
         }
 
         #endregion

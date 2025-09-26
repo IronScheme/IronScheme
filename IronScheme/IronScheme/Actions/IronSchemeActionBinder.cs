@@ -76,6 +76,7 @@ namespace IronScheme.Actions
       }
       else
       {
+        //Console.WriteLine(nameof(EmitConvertFromObject) + ": " + paramType.Name);
         cg.EmitCast(typeof(object), paramType);
       }
     }

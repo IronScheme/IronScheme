@@ -75,12 +75,6 @@ namespace Microsoft.Scripting.Ast
             set { _parameterInfos = value; }
         }
 
-
-        private bool IsInputParameter(int i)
-        {
-            return !_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0;
-        }
-
         static Expression UnwindBoundExpression(BoundExpression be)
         {
             if (be.Variable.AssumedValue != null && be.Variable.AssumedValue is BoundExpression)
@@ -100,9 +94,10 @@ namespace Microsoft.Scripting.Ast
             {
                 if (!IsParamsMethod())
                 {
-                    if (_instance is CodeBlockExpression)
+                    var ui = Unwrap(_instance);
+                    if (ui is CodeBlockExpression)
                     {
-                        CodeBlockExpression cbe = (CodeBlockExpression)_instance;
+                        CodeBlockExpression cbe = (CodeBlockExpression)ui;
 
                         Debug.Assert(_arguments.Count == _parameterInfos.Length);
                         for (int arg = 0; arg < _parameterInfos.Length; arg++)
@@ -149,9 +144,23 @@ namespace Microsoft.Scripting.Ast
                 }
                 else if (arg.Type == typeof(object))
                 {
+                    object i = null;
+
+                    if (arg is MethodCallExpression mce)
+                    {
+                        i = mce.Instance; // this is bound expr before
+                    }
+
+                    arg.Emit(cg);
+
+                    if (arg.Type == typeof(bool)) // really check why this can happen, inlining? changing types not OK
+                    {
+                        return;
+                    }
+
                     Label next = cg.DefineLabel();
                     Label end = cg.DefineLabel();
-                    arg.Emit(cg);
+
                     cg.Emit(OpCodes.Dup);
                     cg.Emit(OpCodes.Isinst, typeof(bool));
                     cg.Emit(OpCodes.Brfalse, next);
@@ -233,6 +242,21 @@ namespace Microsoft.Scripting.Ast
                                     _method = i.cg.MethodInfo;
                                     pttt = GetParameterTypes(_method);
                                     break;
+                                }
+
+                                if (i.arity < 0)
+                                {
+                                    var lpppt = GetParameterTypes(i.cg.MethodInfo);
+                                    if (lpppt.Length - 1 > _arguments.Count)
+                                    {
+                                    }
+                                    else
+                                    {
+                                        _method = i.cg.MethodInfo;
+                                        pttt = lpppt;
+                                        varargs = true;
+                                        break;
+                                    }
                                 }
                             }
                         }

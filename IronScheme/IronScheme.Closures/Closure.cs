@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using IronScheme.Runtime.Typed;
 using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
@@ -216,7 +217,7 @@ namespace IronScheme.Runtime
 
     readonly Delegate target;
 
-    readonly static MethodInfo[] None = { };
+    protected readonly static MethodInfo[] None = { };
 
     public virtual MethodInfo[] Targets
     {
@@ -463,6 +464,13 @@ namespace IronScheme.Runtime
 
     public static Callable CreateTypedCase(Callable[] targets, int[] arities)
     {
+      for (int i = 0; i < targets.Length; i++)
+      {
+        if (arities[i] < 0)
+        {
+          ((TypedClosure) targets[i]).IsVarargs = true;
+        }
+      }
       return new CaseClosure(targets, arities);
     }
 
@@ -553,9 +561,12 @@ namespace IronScheme.Runtime
         get 
         {
           List<MethodInfo> mis = new List<MethodInfo>();
-          foreach (Closure c in targets)
+          for (int i = 0; i < targets.Count; i++)
           {
-            mis.AddRange(c.Targets);
+            if (arities[i] >= 0)
+            {
+              mis.AddRange(((Closure)targets[i]).Targets);
+            }
           }
           return mis.ToArray(); 
         }
@@ -566,9 +577,13 @@ namespace IronScheme.Runtime
         get
         {
           List<MethodInfo> mis = new List<MethodInfo>();
-          foreach (Closure c in targets)
+
+          for (int i = 0; i < targets.Count; i++)
           {
-            mis.AddRange(c.VarargTargets);
+            if (arities[i] < 0)
+            {
+              mis.AddRange(((Closure)targets[i]).VarargTargets);
+            }
           }
           return mis.ToArray();
         }

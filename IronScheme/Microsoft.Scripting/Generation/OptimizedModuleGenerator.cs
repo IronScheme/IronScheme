@@ -388,7 +388,7 @@ namespace Microsoft.Scripting.Generation
               }
             }
 
-            StaticFieldSlotFactory factory = new StaticFieldSlotFactory(tg);
+            StaticFieldSlotFactory factory = new StaticFieldSlotFactory(tg.Globals);
 
             _languages[scriptCode.LanguageContext] = new LanguageInfo(factory, tg);
 
