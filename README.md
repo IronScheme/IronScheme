@@ -1,8 +1,11 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 [![Build](https://github.com/IronScheme/IronScheme/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/IronScheme/IronScheme/actions/workflows/build.yml)
-[![NuGet Version](https://img.shields.io/nuget/vpre/IronScheme.Core?logo=nuget&label=IronScheme.Core)](https://www.nuget.org/packages/IronScheme.Core)
-[![NuGet Version](https://img.shields.io/nuget/vpre/IronScheme.Tool?logo=nuget&label=IronScheme.Tool)](https://www.nuget.org/packages/IronScheme.Tool)
 
+[![NuGet Version](https://img.shields.io/nuget/v/IronScheme.Core?logo=nuget&label=IronScheme.Core)](https://www.nuget.org/packages/IronScheme.Core)
+[![NuGet Version](https://img.shields.io/nuget/vpre/IronScheme.Core?logo=nuget&label=IronScheme.Core)](https://www.nuget.org/packages/IronScheme.Core)
+
+[![NuGet Version](https://img.shields.io/nuget/v/IronScheme.Tool?logo=nuget&label=IronScheme.Tool)](https://www.nuget.org/packages/IronScheme.Tool)
+[![NuGet Version](https://img.shields.io/nuget/vpre/IronScheme.Tool?logo=nuget&label=IronScheme.Tool)](https://www.nuget.org/packages/IronScheme.Tool)
 
 
 IronScheme
