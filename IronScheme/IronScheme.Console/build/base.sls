@@ -285,7 +285,7 @@ See docs/license.txt. |#
   (clr-using Microsoft.Scripting)
   (clr-using IronScheme.Scripting)
   
-  (define (char->integer chr)
+  (define: (char->integer chr -> fixnum)
     (if (clr-is SchemeChar chr)
         (clr-field-get SchemeChar Value chr)
         (begin
@@ -351,7 +351,7 @@ See docs/license.txt. |#
           (clr-prop-set! StringBuilder Chars str i fill)
           (f ($fx+ i 1))))))
           
-  (define (string-length str)
+  (define: (string-length str -> fixnum)
     (cond
       [(clr-string? str) 
         (clr-prop-get String Length str)]
@@ -361,11 +361,10 @@ See docs/license.txt. |#
         (assertion-violation 'string-length "not a string" str)]))
 
   ;; TODO: rewrite in new typed syntax        
-  (define ->string
-    (typed-lambda (str) ((Object) String)
-      (if (clr-string? str)
-          str
-          (clr-call Object ToString str))))
+  (define: (->string str -> String)
+    (if (clr-string? str)
+        str
+        (clr-call Object ToString str)))
         
   (define/contract (string . args:char)
     (let ((str (clr-new StringBuilder)))
@@ -427,20 +426,20 @@ See docs/license.txt. |#
   (define/contract (string->symbol str:string)
     (clr-static-call SymbolTable StringToObject (->string str)))
 
-  (define/contract (list->vector lst:list)
+  (define: (list->vector (lst : list) -> vector)
     (clr-static-call Builtins ListToVector lst))
     
   (define/contract (list->string lst:list)
     (apply string lst))
     
-  (define/contract (vector-ref x:vector n:fixnum)
+  (define: (vector-ref (x : vector) (n : fixnum))
     (when ($fxnegative? n)
       (assertion-violation 'vector-ref "negative index" n))
     (when ($fx>=? n (vector-length x))
       (assertion-violation 'vector-ref "index out of bounds" n))
     ($vector-ref x n))
     
-  (define/contract (vector-set! x:vector n:fixnum value)
+  (define: (vector-set! (x : vector) (n : fixnum) value)
     (when ($fxnegative? n)
       (assertion-violation 'vector-set! "negative index" n))
     (when ($fx>=? n (vector-length x))
@@ -448,31 +447,31 @@ See docs/license.txt. |#
     ($vector-set! x n value)
     (void))   
     
-  (define/contract make-vector         
-    (case-lambda
-      [(k:fixnum)
+  (define make-vector         
+    (case-lambda:
+      [((k : fixnum) -> vector)
         (when ($fxnegative? k)
           (assertion-violation 'make-vector "cannot be negative" k))
         (clr-new-array Object k)]
-      [(k fill)
+      [((k : fixnum) fill -> vector)
         (let ((vec (make-vector k)))
           (vector-fill! vec fill)
           vec)]))
           
-  (define/contract (vector-length vec:vector)
+  (define: (vector-length (vec : vector) -> fixnum)
     (clr-prop-get Array Length vec))            
   
-  (define/contract (vector-fill! vec:vector val)
+  (define: (vector-fill! (vec : vector) val)
     (let: (((vec : Object[]) vec)
            ((len : Int32) (vector-length vec)))
       (do ((i 0 ($fx+ i 1)))
           (($fx=? i len))
         ($vector-set! vec i val))))
         
-  (define/contract (vector->list vec:vector)
-    (clr-static-call Cons FromList vec))   
+  (define: (vector->list (vec : vector) -> list)
+    (clr-static-call Cons FromList vec))
     
-  (define/contract (reverse lst:list)
+  (define: (reverse (lst : list) -> list)
     (let f ((l lst)(a '()))
       (if (null? l)
           a

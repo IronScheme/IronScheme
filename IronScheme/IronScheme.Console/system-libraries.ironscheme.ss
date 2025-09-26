@@ -59,10 +59,6 @@ See docs/license.txt. |#
 (let ()
   (import (ironscheme typed language))
   #f)
-  
-(let ()
-  (import (ironscheme typed fixnums))
-  (import (ironscheme typed flonums))
-  #f)
+
   
 

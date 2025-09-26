@@ -56,7 +56,7 @@ namespace IronScheme.Runtime
 
       binder = new Actions.IronSchemeActionBinder(cc);
 
-      MethodCallExpression.BuiltinsIsTrue = typeof(Builtins).GetMethod("IsTrue");
+      MethodCallExpression.BuiltinsIsTrue = typeof(Builtins).GetMethod(nameof(Builtins.IsTrue));
 
       Generator.initme = true;
     }

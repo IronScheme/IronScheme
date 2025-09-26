@@ -8,136 +8,11 @@
 using System;
 using System.Collections.Generic;
 using IronScheme.Runtime;
-using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Compiler
 {
-  [Generator("annotated-typed-case-lambda")]
-  sealed class AnnotatedTypedCaseLambdaGenerator : TypedCaseLambdaGenerator
-  {
-    public override Expression Generate(object args, CodeBlock c)
-    {
-      Cons a = (Cons)args;
-      object an = a.car;
-      if (an is Annotation)
-      {
-        var anno = (Annotation)an;
-
-        if (anno.source is Cons)
-        {
-          Cons src = anno.source as Cons;
-          string filename = src.car as string;
-          object location = src.cdr;
-
-          Cons expr = anno.expression as Cons;
-
-          annotations = expr == null ? null : expr.cdr as Cons;
-
-          // bootstrap check
-          if (location is string)
-          {
-            SpanHint = ExtractLocation(location as string);
-          }
-          else if (location is SourceSpan)
-          {
-            SpanHint = (SourceSpan)location;
-          }
-
-          if (c.Filename == null)
-          {
-            c.Filename = filename;
-          }
-
-          LocationHint = filename;
-
-          return base.Generate(a.cdr, c);
-        }
-      }
-      LocationHint = null;
-      SpanHint = SourceSpan.None;
-      return base.Generate(a.cdr, c);
-    }
-
-
-  }
-
-  abstract class TypedGenerator : SimpleGenerator
-  {
-    protected Type GetClosureType(CodeBlock cb)
-    {
-      Type[] types = GetTypeSpec(cb);
-
-      var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
-
-      return functype as Type;
-    }
-
-    protected Type GetDelegateType(CodeBlock cb)
-    {
-      Type[] types = GetTypeSpec(cb);
-
-      var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
-
-      return functype as Type;
-    }
-
-    protected static Type GetGenericType(string typename, Type[] types)
-    {
-      int l = types.Length;
-      var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
-      return functype;
-    }
-
-    protected static Type[] GetTypeSpec(CodeBlock cb)
-    {
-      List<Type> types = new List<Type>();
-
-      foreach (var v in cb.Parameters)
-      {
-        types.Add(v.Type);
-      }
-
-      types.Add(cb.ReturnType);
-      return types.ToArray();
-    }
-  }
-
-  [Generator("typed-lambda")]
-  sealed class TypedLambdaGenerator : TypedGenerator
-  {
-    public override Expression Generate(object args, CodeBlock c)
-    {
-      var refs = ClrGenerator.SaveReferences();
-
-      object arg = Builtins.First(args);
-      object typespec = (Builtins.Second(args));
-
-      Cons body = Builtins.Cdr(Builtins.Cdr(args)) as Cons;
-
-      var returntype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote,  Builtins.Second(typespec)));
-
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c), returntype);
-      NameHint = SymbolId.Empty;
-      cb.Filename = LocationHint;
-      cb.Parent = c;
-
-      bool isrest = AssignParameters(cb, arg, Builtins.Car(typespec));
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body, true);
-
-      Type dt = GetDelegateType(cb);
-      Type ct = GetClosureType(cb);
-
-      Expression ex = Ast.New(ct.GetConstructor( new Type[] { dt }), Ast.CodeBlockExpression(cb, true, dt));
-
-      ClrGenerator.ResetReferences(refs);
-
-      return ex;
-    }
-  }
 
   [Generator("typed-case-lambda")]
   class TypedCaseLambdaGenerator : TypedGenerator
@@ -190,6 +65,11 @@ namespace IronScheme.Compiler
           cb.Parent = c;
 
           bool isrest = AssignParameters(cb, arg, Builtins.Car(typespec));
+
+          if (isrest)
+          {
+            cb.Name += "+";
+          }
 
           List<Statement> stmts = new List<Statement>();
           FillBody(cb, stmts, body, true);

@@ -152,6 +152,7 @@ See docs/license.txt. |#
       add1
       sub1)
     (ironscheme core)
+    (ironscheme typed)
     (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr))
@@ -180,10 +181,10 @@ See docs/license.txt. |#
   (define (make-complexnum r1 r2)
     (clr-static-call Complex64 Make r1 r2))
     
-  (define (complexnum-imag-part c)
+  (define: (complexnum-imag-part (c : Complex64) -> flonum)
     (clr-prop-get Complex64 Imag c))
     
-  (define (complexnum-real-part c)
+  (define: (complexnum-real-part (c : Complex64) -> flonum)
     (clr-prop-get Complex64 Real c))
     
   (define (bignum/ a b)
@@ -195,13 +196,14 @@ See docs/license.txt. |#
   (define (bignum->fixnum b)
     (clr-call IntX ToInt32 b))
     
-  (define (flonum->ratnum f)
+  (define: (flonum->ratnum (f : flonum) -> Fraction)
     (clr-static-call Fraction (op_Implicit Double) f))
 
-  (define (ratnum->flonum r)
+  ; used?
+  (define: (ratnum->flonum (r : Fraction) -> flonum)
     (clr-call Fraction (ToDouble IFormatProvider) r '()))
     
-  (define (fixnum->bignum f)
+  (define: (fixnum->bignum (f : fixnum) -> bignum)
     (clr-static-call IntX (Create Int32) f))   
     
   (define (real->complexnum num)
@@ -218,7 +220,7 @@ See docs/license.txt. |#
   (define (rectnum->complexnum num)
     (clr-call ComplexFraction ToComplex64 num))               
         
-  (define (->fixnum num)
+  (define: (->fixnum num -> fixnum)
     (if (fixnum? num)
         num
         (clr-call IntX ToInt32 num)))
@@ -231,14 +233,14 @@ See docs/license.txt. |#
       [else
         (assertion-violation '->ratnum "not a real" num)]))
         
-  (define (->bignum num)
+  (define: (->bignum num -> bignum)
     (cond 
       [(bignum? num) num]
       [(fixnum? num) (fixnum->bignum num)]
       [else
         (assertion-violation '->bignum "not an integer" num)]))     
 
-  (define (real->flonum x)
+  (define: (real->flonum x -> flonum)
     (cond
       [(flonum? x)
         x]
@@ -251,181 +253,179 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'real->flonum "not a real" x)]))
     
-  (define (fixnum->flonum x)
-    (unless (fixnum? x)
-      (assertion-violation 'fixnum->flonum "not a fixnum" x))
-    (clr-cast Double (clr-cast Int32 x)))
+  (define: (fixnum->flonum (x : fixnum) -> flonum)
+    (clr-cast Double x))
         
-  (define (nan? num)
+  (define: (nan? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #f]
       [(flonum? num)
         (flnan? num)]
       [(complexnum? num)
-        (or (flnan? (complexnum-real-part num))
-            (flnan? (complexnum-imag-part num)))]
+        ($or? (flnan? (complexnum-real-part num))
+              (flnan? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'nan? "not a number" num)]))
         
-  (define (finite? num)
+  (define: (finite? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #t]
       [(flonum? num)
         (flfinite? num)]
       [(complexnum? num)
-        (and (flfinite? (complexnum-real-part num))
-             (flfinite? (complexnum-imag-part num)))]
+        ($and? (flfinite? (complexnum-real-part num))
+                (flfinite? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'finite? "not a number" num)]))        
         
-  (define (infinite? num)
+  (define: (infinite? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #f]
       [(flonum? num)
         (flinfinite? num)]
       [(complexnum? num)
-        (or (flinfinite? (complexnum-real-part num))
-            (flinfinite? (complexnum-imag-part num)))]
+        ($or? (flinfinite? (complexnum-real-part num))
+              (flinfinite? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'infinite? "not a number" num)]))
         
-  (define (exact? obj)
+  (define: (exact? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (rectnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (rectnum? obj))
        #t]
-      [(or (flonum? obj)
-           (complexnum? obj))
+      [($or? (flonum? obj)
+             (complexnum? obj))
        #f]
       [else
         (assertion-violation 'exact "not a number" obj)]))
 
-  (define (inexact? obj)
+  (define: (inexact? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (rectnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (rectnum? obj))
        #f]
-      [(or (flonum? obj)
-           (complexnum? obj))
+      [($or? (flonum? obj)
+             (complexnum? obj))
        #t]
       [else
         (assertion-violation 'inexact "not a number" obj)]))
         
-  (define (complex? obj)
+  (define: (complex? obj -> bool)
     (number? obj))
     
-  (define (real? obj)
+  (define: (real? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (flonum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (flonum? obj))
        #t]
-      [(or (complexnum? obj) (rectnum? obj))
+      [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
          (and (zero? i)
               (exact? i)))]
       [else #f]))
         
-  (define (rational? obj)
+  (define: (rational? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj))
        #t]
-      [(and (or (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj)) 
-            (finite? obj) 
-            (not (nan? obj)))
+      [($and? ($or? (complexnum? obj) 
+                    (rectnum? obj)
+                    (flonum? obj)) 
+              (finite? obj) 
+              (not (nan? obj)))
         (let ((i (imag-part obj)))
           (and (exact? i) 
                (zero? i)))]
       [else #f]))
         
-  (define (integer? obj)
+  (define: (integer? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj))
        #t]
-      [(and (or (ratnum? obj) 
-                (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj))
-            (finite? obj) 
-            (not (nan? obj)))            
+      [($and? ($or? (ratnum? obj) 
+                  (complexnum? obj) 
+                  (rectnum? obj)
+                  (flonum? obj))
+              (finite? obj) 
+              (not (nan? obj)))            
         (let ((i (imag-part obj)))
           (and (exact? i) 
                (zero? i)
                (= (denominator (real-part obj)) 1)))]
       [else #f]))
       
-  (define (real-valued? obj)
+  (define: (real-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (flonum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (flonum? obj))
        #t]
-      [(or (complexnum? obj) (rectnum? obj))
+      [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
           (zero? i))]
       [else #f])) 
       
-  (define (rational-valued? obj)
+  (define: (rational-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj))
        #t]
-      [(and (or (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj)) 
-            (finite? obj) 
-            (not (nan? obj)))
+      [($and? ($or? (complexnum? obj) 
+                    (rectnum? obj)
+                    (flonum? obj)) 
+              (finite? obj) 
+              (not (nan? obj)))
         (let ((i (imag-part obj)))
           (zero? i))]
       [else #f])) 
       
-  (define (integer-valued? obj)
+  (define: (integer-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj))
        #t]
-      [(and (or (ratnum? obj) 
-                (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj))
-            (finite? obj) 
-            (not (nan? obj)))            
+      [($and? ($or? (ratnum? obj) 
+                    (complexnum? obj) 
+                    (rectnum? obj)
+                    (flonum? obj))
+              (finite? obj) 
+              (not (nan? obj)))            
         (let ((i (imag-part obj)))
           (and (zero? i)
                (= (denominator (real-part obj)) 1)))]
       [else #f]))                
 
-  (define/contract (zero? num:number)
+  (define: (zero? num -> bool)
     (= num 0))
     
-  (define/contract (positive? num:number)
+  (define: (positive? num -> bool)
     (> num 0))
       
-  (define/contract (negative? num:number)
+  (define: (negative? num -> bool)
     (< num 0))
     
   (define (inexact num)
@@ -455,7 +455,7 @@ See docs/license.txt. |#
           [else            
             (assertion-violation 'exact "no exact equivalent" num)])]
       [(flonum? num)
-        (if (or (flnan? num) (flinfinite? num))
+        (if ($or? (flnan? num) (flinfinite? num))
             (assertion-violation 'exact "no exact equivalent" num)
             (exact (flonum->ratnum num)))]
       [(bignum? num)
@@ -510,12 +510,12 @@ See docs/license.txt. |#
   (define (hex-char num)
     (integer->char ($fx+ num (char->integer (if ($fx<? num 10) #\0 #\W)))))
         
-  (define (fixnum->string num radix)
+  (define: (fixnum->string (num : fixnum) (radix : fixnum) -> string)
     (if ($fxnegative? num)
         (string-append "-" (number->string (abs num) radix))
         (clr-static-call Convert (ToString Int32 Int32) num radix)))
      
-  (define (bignum->string num radix)
+  (define: (bignum->string (num : bignum) (radix : fixnum) -> string)
     (if (zero? num)
         "0"
         (let* ((neg? (negative? num))
@@ -530,12 +530,12 @@ See docs/license.txt. |#
                out))))
         
   (define number->string
-    (case-lambda
-      [(num)
+    (case-lambda:
+      [(num -> string)
         (number->string num 10)]
-      [(num radix prec)
+      [(num radix prec -> string)
         (number->string num radix)]
-      [(num radix)
+      [(num radix -> string)
         (unless (fixnum? radix)
           (assertion-violation 'number->string "not a fixnum" radix))
         (unless (memv radix '(2 8 10 16))
@@ -602,12 +602,13 @@ See docs/license.txt. |#
                     (symbol->string (syntax->datum #'name))
                     "?")))))
             #'(define name
-                (case-lambda
-                  [(a) 
+                (case-lambda:
+                  ; have no idea why this is here, but chez does it too
+                  [(a -> bool) 
                     (if (number? a)
                         #t
                         (assertion-violation 'name "not a number" a))]
-                  [(a b)
+                  [(a b -> bool)
                     (cond 
                       [(and (real? a)
                             (real? b)
@@ -622,8 +623,8 @@ See docs/license.txt. |#
                         (inexact=? (inexact a) (inexact b))]
                       [else
                         (assertion-violation 'name "not number arguments" a b)])]
-                  [(x1 x2 . rest)
-                    (let f ((a x1)(b (cons x2 rest)))
+                  [(x1 x2 #(rest) -> bool)
+                    (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
@@ -642,8 +643,8 @@ See docs/license.txt. |#
                     (symbol->string (syntax->datum #'name))
                     "?")))))
             #'(define name
-                (case-lambda
-                  [(a b)
+                (case-lambda:
+                  [(a b -> bool)
                     (cond 
                       [(and (real? a) 
                             (real? b)
@@ -659,8 +660,8 @@ See docs/license.txt. |#
                         (uname (inexact-compare (inexact a) (inexact b)) 0)]                                                
                       [else
                         (assertion-violation 'name "not real arguments" a b)])]
-                  [(x1 x2 . rest)
-                    (let f ((a x1)(b (cons x2 rest)))
+                  [(x1 x2 #(rest) -> bool)
+                    (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
@@ -705,9 +706,9 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'magnitude "not a number" num)]))
     
-  (define (exact-integer? obj)
-    (or (fixnum? obj)
-        (bignum? obj)))    
+  (define: (exact-integer? obj -> bool)
+    ($or? (fixnum? obj)
+          (bignum? obj)))
     
   (define (numerator num)
     (cond
@@ -922,10 +923,14 @@ See docs/license.txt. |#
               (exact r)
               r))]))
               
-  (define/contract (even? n:integer)
+  (define: (even? n -> bool)
+    (unless (integer? n)
+      (assertion-violation 'even? "not a integer" n))
     (zero? (mod n 2)))
 
-  (define/contract (odd? n:integer)
+  (define: (odd? n -> bool)
+    (unless (integer? n)
+      (assertion-violation 'odd? "not a integer" n))
     (not (zero? (mod n 2))))
   
   (define/contract (max a:real . rest:real)
@@ -1086,20 +1091,19 @@ See docs/license.txt. |#
                   [else 
                     (raise (make-restriction-violation))]))]))]))
                    
-  ; TODO: improve this    
-  (define/contract (fx*/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx*/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (+ (* fx1 fx2) fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
         (values m d))))
 
-  (define/contract (fx-/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx-/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (- fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
         (values m d))))
 
-  (define/contract (fx+/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx+/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (+ fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
@@ -1190,13 +1194,13 @@ See docs/license.txt. |#
 
 ; lets get printing!        
 
-  (define (get-digits flo)
+  (define: (get-digits (flo : flonum))
     (call-with-values (lambda () (decompose-flonum flo)) flonum->digits))  
 
   (define (get-chr i)
     (integer->char (+ (char->integer #\0)(fxmod i 10))))  
 
-  (define (flonum->string flo)
+  (define: (flonum->string (flo : flonum))
     (cond
       [(flzero? flo) "0.0"]
       [(flnan? flo) "+nan.0"]

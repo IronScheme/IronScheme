@@ -43,7 +43,7 @@ namespace IronScheme.Compiler
             x.Emit(OpCodes.Isinst, rtd.type);
             x.Emit(OpCodes.Ldnull);
             x.Emit(OpCodes.Cgt_Un);
-            x.EmitCall(typeof(RuntimeHelpers).GetMethod("BooleanToObject"), y);
+            x.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.BooleanToObject)), y);
           };
 
         //if (NameHint.ToString().Contains("stx?")) Debugger.Break();
@@ -452,8 +452,7 @@ namespace IronScheme.Compiler
       {
         CodeGen init = cg.TypeGen.TypeInitializer;
 
-        Slot s = cg.TypeGen.AddStaticField(typeof(object), FieldAttributes.InitOnly | FieldAttributes.Private, 
-          string.Format("$c${0:X4}", constantcounter++));
+        Slot s = cg.TypeGen.Constants.AddStaticField(typeof(object), FieldAttributes.Assembly,  string.Format("${0:X4}", constantcounter++));
 
         try
         {
