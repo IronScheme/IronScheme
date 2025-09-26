@@ -4,6 +4,7 @@ image: Visual Studio 2022
 branches:
   only:
   - master
+  - beta
 configuration: Release
 assembly_info:
   patch: true
