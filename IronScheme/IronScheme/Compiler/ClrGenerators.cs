@@ -176,6 +176,7 @@ namespace IronScheme.Compiler
         {"double", "Double"},
         {"string", "String"},
         {"bool", "Boolean"},
+        {"bignum", "IntX"},
         {"vector", "Object[]"},
         {"bytevector", "Byte[]"},
         {"cons", "IronScheme.Runtime.Cons"},

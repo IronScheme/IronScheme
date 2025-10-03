@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting;
 using System;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime.Typed
 {
@@ -288,6 +289,8 @@ namespace IronScheme.Runtime.Typed
     {
     }
 
+    public bool IsVarargs { get; set; }
+
     public override object Form
     {
       get
@@ -302,8 +305,9 @@ namespace IronScheme.Runtime.Typed
 
         var cctype = typeof(CodeContext);
 
-        foreach (ParameterInfo pi in pis)
+        for (int i = 0; i < pis.Length; i++)
         {
+          ParameterInfo pi = pis[i];
           if (pi.ParameterType != cctype)
           {
             if (pi.ParameterType != typeof(object))
@@ -317,7 +321,15 @@ namespace IronScheme.Runtime.Typed
             }
             else
             {
-              form.Add(SymbolTable.StringToObject(pi.Name));
+              // if varargs then this must be #(name)
+              if (IsVarargs && i == pis.Length - 1)
+              {
+                form.Add(new object[] { SymbolTable.StringToObject(pi.Name) });
+              }
+              else
+              {
+                form.Add(SymbolTable.StringToObject(pi.Name));
+              }
             }
           }
         }
@@ -333,6 +345,35 @@ namespace IronScheme.Runtime.Typed
         return ConsFromArray(form.ToArray());
       }
     }
+
+    [DebuggerStepThrough]
+    private object CallVarArgs(object[] args)
+    {
+      if (args.Length < paramcount - 1)
+      {
+        AssertionViolation(GetWho(), string.Format("invalid argument count, expected at least {0} got {1}", Arity, args.Length), args);
+      }
+      object[] newargs = new object[paramcount];
+      Array.Copy(args, newargs, paramcount - 1);
+      object[] last = new object[args.Length - paramcount + 1];
+      Array.Copy(args, paramcount - 1, last, 0, last.Length);
+      newargs[paramcount - 1] = ConsFromArray(last);
+      return CallNormal(newargs);
+    }
+
+    [DebuggerStepThrough]
+    public override sealed object Call(object[] args)
+    {
+      if (IsVarargs)
+      {
+        return CallVarArgs(args);
+      }
+
+      return CallNormal(args);
+    }
+
+    [DebuggerStepThrough]
+    protected abstract object CallNormal(object[] args);
 
     object ParseType(Type type)
     {
@@ -391,20 +432,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 0)
       {
@@ -462,20 +524,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 1)
       {
@@ -533,20 +616,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 2)
       {
@@ -604,20 +708,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 3)
       {
@@ -675,20 +800,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 4)
       {
@@ -746,20 +892,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 5)
       {
@@ -817,20 +984,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 6)
       {
@@ -888,20 +1076,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 7)
       {
@@ -960,20 +1169,41 @@ namespace IronScheme.Runtime.Typed
     {
       get
       {
-        List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+        if (IsVarargs)
         {
-          targets.Add(typedtarget.Method);
+          return None;
         }
-        if (IsValid(untypedtarget.Method))
-        {
-          targets.Add(untypedtarget.Method);
-        }
-        return targets.ToArray();
+        return GetTargets();
       }
     }
 
-    public override object Call(object[] args)
+    public override MethodInfo[] VarargTargets
+    {
+      get
+      {
+        if (!IsVarargs)
+        {
+          return None;
+        }
+        return GetTargets();
+      }
+    }
+
+    private MethodInfo[] GetTargets()
+    {
+      List<MethodInfo> targets = new List<MethodInfo>();
+      if (IsValid(typedtarget.Method) && typedtarget.Target == null)
+      {
+        targets.Add(typedtarget.Method);
+      }
+      if (IsValid(untypedtarget.Method))
+      {
+        targets.Add(untypedtarget.Method);
+      }
+      return targets.ToArray();
+    }
+
+    protected override object CallNormal(object[] args)
     {
       if (args.Length != 8)
       {

@@ -11,7 +11,7 @@ namespace IronScheme.Tests
   [Category(nameof(Bootstrap))]
   public class Bootstrap : TestRunner
   {
-    const int LIBSCOUNT = 232;
+    const int LIBSCOUNT = 230;
 
     [Test]
     [Order(1)]
