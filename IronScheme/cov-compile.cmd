@@ -8,4 +8,4 @@ del /q IronScheme.Console.* >nul
 copy ..\netcoreapp2.1\IronScheme.ConsoleCore.dll . >nul
 copy ..\net9.0\IronScheme.ConsoleCore.runtimeconfig.json . >nul
 
-echo (compile-system-libraries) | dotnet IronScheme.ConsoleCore.dll -debug
+echo (compile-system-libraries) | dotnet --roll-forward LatestPatch IronScheme.ConsoleCore.dll -debug
