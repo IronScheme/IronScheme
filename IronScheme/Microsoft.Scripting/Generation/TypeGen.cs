@@ -79,7 +79,7 @@ namespace Microsoft.Scripting.Generation
         public Type FinishType() {
             if (CreatingType != null)
             {
-              CreatingType(this, EventArgs.Empty);
+                CreatingType(this, EventArgs.Empty);
             }
             if (_initGen != null) _initGen.Emit(OpCodes.Ret);
 
@@ -107,14 +107,14 @@ namespace Microsoft.Scripting.Generation
             FieldBuilder contextField = _myType.DefineField(CodeContext.ContextFieldName,
                     typeof(CodeContext),
                     FieldAttributes.Public | FieldAttributes.Static);
-            
+
             _contextSlot = new StaticFieldSlot(contextField);
         }
 
         public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
-      {
-        FieldBuilder fb = _myType.DefineField(name, fieldType, attributes);
-          return new FieldSlot(new ThisSlot(_myType), fb);
+        {
+            FieldBuilder fb = _myType.DefineField(name, fieldType, attributes);
+            return new FieldSlot(new ThisSlot(_myType), fb);
         }
 
         public Slot AddStaticField(Type fieldType, string name) {
@@ -166,7 +166,7 @@ namespace Microsoft.Scripting.Generation
             return DefineMethod(CompilerHelpers.PublicStatic, name, retType, paramTypes, paramNames, null, null, constantPool);
         }
 
-        public CodeGen DefineMethod(MethodAttributes attrs, string name, Type retType, IList<Type> paramTypes, IList<string> paramNames, 
+        public CodeGen DefineMethod(MethodAttributes attrs, string name, Type retType, IList<Type> paramTypes, IList<string> paramNames,
             object[] defaultVals, CustomAttributeBuilder[] cabs, ConstantPool constantPool) {
             Contract.RequiresNotNull(paramTypes, "paramTypes");
             if (paramNames == null) {
@@ -184,13 +184,13 @@ namespace Microsoft.Scripting.Generation
                 }
             }
 
-            name = name.Replace(TypeBuilder + "::", "");
+            name = name.Replace(TypeBuilder.Namespace + "." + TypeBuilder.Name + "::", "");
 
             Type[] parameterTypes = CompilerHelpers.MakeParamTypeArray(paramTypes, constantPool);
 
             if (parameterTypes.Length > 0 && parameterTypes[0] == typeof(CodeContext) && name != "Initialize" || name.Contains("#"))
             {
-              attrs = MethodAttributes.Static | MethodAttributes.Private;
+                attrs = MethodAttributes.Static | MethodAttributes.Private;
             }
 
             MethodBuilder mb = _myType.DefineMethod(name, attrs, retType, parameterTypes);
@@ -332,7 +332,7 @@ namespace Microsoft.Scripting.Generation
 
         public void EmitIndirectedSymbol(CodeGen cg, SymbolId id) {
             Slot value;
-            
+
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
