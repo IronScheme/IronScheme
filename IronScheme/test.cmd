@@ -54,7 +54,7 @@ IF %FX% == net20 (
 IF %FX% == net9.0 (
   where ilverify >nul 2>&1
   rem IF %ERRORLEVEL% NEQ 0
-  dotnet tool install -g dotnet-ilverify
+  dotnet tool install -g dotnet-ilverify --version 9.0.11
 )
 
 rem where nunit3-console >nul 2>&1
