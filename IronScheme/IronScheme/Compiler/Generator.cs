@@ -79,7 +79,7 @@ namespace IronScheme.Compiler
       }
       else if (args is byte[])
       {
-        return Ast.Constant(new ArrayConstant<byte>((byte[]) args));
+        return Ast.Constant(new ArrayConstant<byte>((byte[])args));
       }
       else if (args is int[])
       {
@@ -91,7 +91,7 @@ namespace IronScheme.Compiler
       }
       else if (args is Fraction)
       {
-        Fraction f = (Fraction) args;
+        Fraction f = (Fraction)args;
         return Ast.Constant(new FractionConstant(f));
       }
       else if (args is ComplexFraction)
@@ -186,7 +186,7 @@ namespace IronScheme.Compiler
 
       if (e is ConditionalExpression)
       {
-        ConditionalExpression ce = (ConditionalExpression) e;
+        ConditionalExpression ce = (ConditionalExpression)e;
         return IsSimpleExpression(ce.Test) && IsSimpleExpression(ce.IfTrue) && IsSimpleExpression(ce.IfFalse);
       }
 
@@ -358,7 +358,7 @@ namespace IronScheme.Compiler
             }
           }
         }
-        
+
         if (c.car is SymbolId)
         {
           SymbolId f = (SymbolId)c.car;
@@ -492,11 +492,11 @@ namespace IronScheme.Compiler
                       return Ast.Comma(
                          Ast.Void(
                           Ast.Write(
-                            values, 
+                            values,
                             Ast.ComplexCallHelper(
-                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"), InlineCall(cb, pcbe)), 
-                              typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }), 
-                              Ast.Constant(pppp.Length)))), 
+                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"), InlineCall(cb, pcbe)),
+                              typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }),
+                              Ast.Constant(pppp.Length)))),
                           InlineCall(cb, ccbe, pppp));
                     }
                   }
@@ -536,12 +536,12 @@ namespace IronScheme.Compiler
                     return Ast.Comma(
                         Ast.Void(
                           Ast.Write(
-                            values, 
+                            values,
                             Ast.ComplexCallHelper(
-                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"),  
-                                                   Ast.Call(exx, callx)), 
-                              typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }), 
-                              Ast.Constant(pppp.Length)))), 
+                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"),
+                                                   Ast.Call(exx, callx)),
+                              typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }),
+                              Ast.Constant(pppp.Length)))),
                           InlineCall(cb, ccbe, pppp));
                   }
                 }
@@ -601,7 +601,7 @@ namespace IronScheme.Compiler
                     {
                       return bf.Call(cargs);
                     };
-                    CallTarget1 handler = delegate(object e)
+                    CallTarget1 handler = delegate (object e)
                     {
                       throw new CompileTimeEvaluationException();
                     };
@@ -725,7 +725,7 @@ namespace IronScheme.Compiler
           }
         }
 
-       
+
         Expression ex = Unwrap(GetAst(c.car, cb));
 
         // a 'let'
@@ -760,11 +760,13 @@ namespace IronScheme.Compiler
         {
           NewExpression mcexpr = ex as NewExpression;
           CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
+          ConstantExpression vae = mcexpr.Arguments[1] as ConstantExpression;
           if (cbe == null && mcexpr.Arguments[0].Type == typeof(CodeContext) && mcexpr.Arguments[0] is ConstantExpression) // implies null
           {
             cbe = mcexpr.Arguments[1] as CodeBlockExpression;
+            vae = mcexpr.Arguments[2] as ConstantExpression;
           }
-          if (cbe != null)
+          if (cbe != null && (vae == null || !vae.Value.Equals(true)))
           {
             var ppp = GetAstListNoCast(c.cdr as Cons, cb);
 
@@ -790,7 +792,7 @@ namespace IronScheme.Compiler
           //TODO: add more checks, should we attempt some casting for types?
           if (m.GetParameters().Length != pp.Length)
           {
-            SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), 
+            SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"),
               string.Format("incorrect number of parameters, expected {0} got {1}", m.GetParameters().Length, pp.Length),
               c.car, c);
           }
@@ -852,7 +854,7 @@ namespace IronScheme.Compiler
         if (args is Fraction)
         {
           Fraction f = (Fraction)args;
-          return Ast.Constant( new FractionConstant(f));
+          return Ast.Constant(new FractionConstant(f));
         }
         if (args is ComplexFraction)
         {
@@ -887,7 +889,7 @@ namespace IronScheme.Compiler
       // all var names are unique.
       CodeBlock cb = cbe.Block;
 
-      if (parent.IsGlobal) 
+      if (parent.IsGlobal)
       {
         return CallNormal(cbe, pp);
       }
@@ -937,7 +939,7 @@ namespace IronScheme.Compiler
             assigns.Add(Ast.Write(p, Ast.ConvertHelper(pp[i], p.Type)));
           }
         }
-          
+
         if (p.Lift)
         {
           parent.HasEnvironment = true;
@@ -1014,7 +1016,7 @@ namespace IronScheme.Compiler
         BlockStatement bs = (BlockStatement)statement;
         List<Statement> newbody = new List<Statement>(bs.Statements);
         Statement last = newbody[newbody.Count - 1];
-        
+
         newbody.RemoveAt(newbody.Count - 1);
 
         Statement fb = FlattenStatement(Ast.Block(newbody));
@@ -1071,13 +1073,13 @@ namespace IronScheme.Compiler
     }
 
 
-#region Optimized calls
+    #region Optimized calls
 
     static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
     {
       return inlineemitters.TryGetValue(f, out ie);
     }
-    
+
     protected static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
     {
       bool needscontext = NeedsContext(cbe); // true;
@@ -1115,8 +1117,8 @@ namespace IronScheme.Compiler
 
     static bool NeedsContext(CodeBlockExpression cbe)
     {
-      return cbe.Block.IsClosure || 
-        cbe.Block.ExplicitCodeContextExpression == null && 
+      return cbe.Block.IsClosure ||
+        cbe.Block.ExplicitCodeContextExpression == null &&
         (cbe.Block.Parent != null && !cbe.Block.Parent.IsGlobal);
     }
 
@@ -1163,7 +1165,7 @@ namespace IronScheme.Compiler
       return r;
     }
 
-#endregion
+    #endregion
 
     protected internal static Expression Unwrap(Expression ex)
     {

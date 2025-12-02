@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
 
       Cons body = Builtins.Cdr(Builtins.Cdr(args)) as Cons;
 
-      var returntype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote,  Builtins.Second(typespec)));
+      var returntype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote, Builtins.Second(typespec)));
 
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c), returntype);
       NameHint = SymbolId.Empty;
@@ -34,13 +34,29 @@ namespace IronScheme.Compiler
 
       bool isrest = AssignParameters(cb, arg, Builtins.Car(typespec));
 
+      if (isrest)
+      {
+        cb.Name += "+";
+        cb.IsRest = true;
+      }
+
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 
       Type dt = GetDelegateType(cb);
       Type ct = GetClosureType(cb);
 
-      Expression ex = Ast.New(ct.GetConstructor( new Type[] { dt }), Ast.CodeBlockExpression(cb, true, dt));
+      var cbe = Ast.CodeBlockExpression(cb, true, dt);
+
+      Expression ex = Ast.New(ct.GetConstructor(new Type[] { dt, typeof(bool) }), cbe, Ast.Constant(isrest));
+
+      CodeBlockDescriptor cbd = new CodeBlockDescriptor();
+      cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
+      cbd.callable = ex;
+      cbd.codeblock = cbe;
+      cbd.varargs = isrest;
+
+      descriptorshack2.Add(cbd.callable, cbd);
 
       ClrGenerator.ResetReferences(refs);
 

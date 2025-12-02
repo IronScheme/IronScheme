@@ -74,6 +74,7 @@ namespace IronScheme.Compiler
 
     public static void Optimize(CodeBlock cb)
     {
+      Optimize<FixupPrimitives>(cb);
       Optimize<FixupTypedClosureCallsites>(cb);
       Optimize<RemoveUselessConversions>(cb);
       Optimize<FixupConditionals>(cb);

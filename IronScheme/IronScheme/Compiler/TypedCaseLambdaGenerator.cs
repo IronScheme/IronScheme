@@ -78,7 +78,7 @@ namespace IronScheme.Compiler
           Type ct = GetClosureType(cb);
 
           var cbe = Ast.CodeBlockExpression(cb, true, dt);
-          Expression ex = Ast.New(ct.GetConstructor(new Type[] {  dt }), cbe);
+          Expression ex = Ast.New(ct.GetConstructor(new Type[] { dt, typeof(bool) }), cbe, Ast.Constant(isrest));
 
           CodeBlockDescriptor cbd = new CodeBlockDescriptor();
           cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
