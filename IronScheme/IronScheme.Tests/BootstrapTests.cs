@@ -11,7 +11,7 @@ namespace IronScheme.Tests
   [Category(nameof(Bootstrap))]
   public class Bootstrap : TestRunner
   {
-    const int LIBSCOUNT = 230;
+    const int LIBSCOUNT = 231;
 
     [Test]
     [Order(1)]
@@ -100,7 +100,7 @@ namespace IronScheme.Tests
 
     static string _sdkRefPath;
 
-    string SdkRefPath => _sdkRefPath ??= GetSdkRefPath();  
+    string SdkRefPath => _sdkRefPath ??= GetSdkRefPath();
 
     string GetSdkRefPath()
     {
