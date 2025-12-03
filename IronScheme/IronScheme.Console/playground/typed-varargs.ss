@@ -25,3 +25,22 @@
     (f 10 20 2 3 4 5)))
 (test-lambda)
 
+;; Greeting function with multiple arities
+(define greeting
+  (case-lambda:
+    [( -> string)                              ; 0 args - empty param list
+      "Hello, World!"]
+    [((name : string) -> string)               ; 1 arg
+      (string-append "Hello, " name "!")]
+    [((name : string) others ... -> string)    ; 1+ args with varargs
+      (string-append "Hello, " name " and " 
+                     (number->string (length others)) 
+                     " others!")]))
+;; Usage:
+(greeting)                        ; "Hello, World!"
+(greeting "Alice")                ; "Hello, Alice!"
+(greeting "Alice" "Bob")          ; "Hello, Alice and 1 others!"
+(greeting "Alice" "Bob" "Charlie" "David")  ; "Hello, Alice and 3 others!"
+
+; bad syntax, looks natural, but is not
+;(lambda: (() -> flonum) 3.14159)
