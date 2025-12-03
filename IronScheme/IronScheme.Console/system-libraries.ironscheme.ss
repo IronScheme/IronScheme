@@ -48,6 +48,7 @@ See docs/license.txt. |#
     (ironscheme syntax symbolic-case)
     
     (ironscheme typed)
+    (ironscheme typed integrable)
     (ironscheme typed struct)
     (ironscheme typed struct-case)
     
