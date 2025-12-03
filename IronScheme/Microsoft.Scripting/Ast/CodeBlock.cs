@@ -71,13 +71,13 @@ namespace Microsoft.Scripting.Ast
 
         public bool Inlined
         {
-          get { return inlined; }
-          set { inlined = value; }
+            get { return inlined; }
+            set { inlined = value; }
         }
 
         public object Source { get; set; }
         public bool IsRest { get; set; }
-        
+
         /// <summary>
         /// True, if the block is referenced by a declarative reference (CodeBlockExpression).
         /// </summary>
@@ -87,10 +87,10 @@ namespace Microsoft.Scripting.Ast
 
         public string Filename { get; set; }
 
-      public override string ToString()
-      {
-        return _name;
-      }
+        public override string ToString()
+        {
+            return _name;
+        }
 
         internal CodeBlock(AstNodeType nodeType, SourceSpan span, string name, Type returnType)
             : base(nodeType) {
@@ -186,13 +186,13 @@ namespace Microsoft.Scripting.Ast
         }
 
         public CodeBlock Parent {
-            get 
+            get
             {
-              if (_parent != null && _parent.Inlined)
-              {
-                return _parent.Parent;
-              }
-              return _parent; 
+                if (_parent != null && _parent.Inlined)
+                {
+                    return _parent.Parent;
+                }
+                return _parent;
             }
             set { _parent = value; }
         }
@@ -204,9 +204,9 @@ namespace Microsoft.Scripting.Ast
 
         public void Bind()
         {
-          IsClosure = false;
-          HasEnvironment = false;
-          ClosureBinder.Bind(this);
+            IsClosure = false;
+            HasEnvironment = false;
+            ClosureBinder.Bind(this);
         }
 
         internal IList<VariableReference> References {
@@ -220,24 +220,24 @@ namespace Microsoft.Scripting.Ast
 
         public Variable Lookup(SymbolId id)
         {
-          Variable v = null;
+            Variable v = null;
 
-          if (_parametersmap.TryGetValue(id, out v))
-          {
+            if (_parametersmap.TryGetValue(id, out v))
+            {
+                return v;
+            }
+
+            if (_variablesmap.TryGetValue(id, out v))
+            {
+                return v;
+            }
+
+            if (Parent != null)
+            {
+                return Parent.Lookup(id);
+            }
+
             return v;
-          }
-
-          if (_variablesmap.TryGetValue(id, out v))
-          {
-            return v;
-          }
-
-          if (Parent != null)
-          {
-            return Parent.Lookup(id);
-          }
-
-          return v;
         }
 
         public Type EnvironmentType {
@@ -301,32 +301,32 @@ namespace Microsoft.Scripting.Ast
                 List<Variable> lifted = new List<Variable>();
 
                 foreach (Variable parm in _parameters) {
-                  if (parm.Lift)
-                  {
-                    if (!lifted.Contains(parm))
+                    if (parm.Lift)
                     {
-                      lifted.Add(parm);
-                      size++;
+                        if (!lifted.Contains(parm))
+                        {
+                            lifted.Add(parm);
+                            size++;
+                        }
+                        else
+                        {
+                            Console.WriteLine(parm);
+                        }
                     }
-                    else
-                    {
-                      Console.WriteLine(parm);
-                    }
-                  }
                 }
                 foreach (Variable var in _variables) {
-                  if (var.Lift)
-                  {
-                    if (!lifted.Contains(var))
+                    if (var.Lift)
                     {
-                      lifted.Add(var);
-                      size++;
+                        if (!lifted.Contains(var))
+                        {
+                            lifted.Add(var);
+                            size++;
+                        }
+                        else
+                        {
+                            Console.WriteLine(var);
+                        }
                     }
-                    else
-                    {
-                      Console.WriteLine(var);
-                    }
-                  }
                 }
 
                 _environmentFactory = CreateEnvironmentFactory(lifted, cg, GetParentEvironmentType());
@@ -335,11 +335,11 @@ namespace Microsoft.Scripting.Ast
 
         Type GetParentEvironmentType()
         {
-          if (Parent == null || Parent.EnvironmentFactory == null)
-          {
-            return typeof(IAttributesCollection);
-          }
-          return Parent.EnvironmentType;
+            if (Parent == null || Parent.EnvironmentFactory == null)
+            {
+                return typeof(IAttributesCollection);
+            }
+            return Parent.EnvironmentType;
         }
 
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
@@ -354,7 +354,7 @@ namespace Microsoft.Scripting.Ast
             // Emit code to generate the new instance of the environment
             _environmentFactory.EmitNewEnvironment(cg);
 
-          return environmentSlot;
+            return environmentSlot;
         }
 
         /// <summary>
@@ -382,25 +382,25 @@ namespace Microsoft.Scripting.Ast
                 cg.ContextSlot = CreateEnvironmentContext(cg);
             }
             cg.Allocator.Block = this;
-            
+
             CreateAccessSlots(cg);
 
             foreach (Variable prm in _parameters) {
                 prm.Allocate(cg);
             }
             foreach (Variable var in _variables) {
-              if (var.Block != null)
-              {
-                var.Allocate(cg);
-              }
+                if (var.Block != null)
+                {
+                    var.Allocate(cg);
+                }
             }
             foreach (VariableReference r in References) {
-              if (r.Variable.Block == null)
-              {
+                if (r.Variable.Block == null)
+                {
 #if DEBUG
-                Debugger.Break();
+                    Debugger.Break();
 #endif
-              }
+                }
                 r.CreateSlot(cg);
                 Debug.Assert(r.Slot != null);
             }
@@ -418,97 +418,97 @@ namespace Microsoft.Scripting.Ast
 
         int GetDepth()
         {
-          if (depth == -1)
-          {
-            depth = 0;
-            CodeBlock parent = Parent;
-            while (parent != null)
+            if (depth == -1)
             {
-              depth++;
-              parent = parent.Parent;
+                depth = 0;
+                CodeBlock parent = Parent;
+                while (parent != null)
+                {
+                    depth++;
+                    parent = parent.Parent;
+                }
             }
-          }
-          return depth;
+            return depth;
         }
 
         private void CreateClosureAccessSlots(CodeGen cg)
         {
-          ScopeAllocator allocator = cg.Allocator;
+            ScopeAllocator allocator = cg.Allocator;
 
-          // Current context is accessed via environment slot, if any
-          if (HasEnvironment)
-          {
-            allocator.AddClosureAccessSlot(this, cg.EnvironmentSlot);
-          }
-
-          // this is the root of all evil...
-          if (IsClosure)
-          {
-            int maxdepth = GetDepth();
-
-            foreach (VariableReference r in References)
+            // Current context is accessed via environment slot, if any
+            if (HasEnvironment)
             {
-              CodeBlock cb = r.Variable.Block;
-              if (!cb.IsGlobal)
-              {
-                int d = cb.GetDepth();
-
-                if (d < maxdepth)
-                {
-                  maxdepth = d;
-                }
-              }
+                allocator.AddClosureAccessSlot(this, cg.EnvironmentSlot);
             }
 
-            int diff = depth - maxdepth;
-
-            if (diff > 0)
+            // this is the root of all evil...
+            if (IsClosure)
             {
-              Slot scope = cg.GetLocalTmp(typeof(Scope));
-              cg.EmitCodeContext();
-              cg.EmitPropertyGet(typeof(CodeContext), "Scope");
-              if (HasEnvironment)
-              {
-                cg.EmitPropertyGet(typeof(Scope), "Parent");
-              }
-              scope.EmitSet(cg);
+                int maxdepth = GetDepth();
 
-              int i = 0;
-              CodeBlock current = this;
-              do
-              {
-                CodeBlock parent = current.Parent;
-                if (parent._environmentFactory != null)
+                foreach (VariableReference r in References)
                 {
-                  scope.EmitGet(cg);
-                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.GetStorageData)).MakeGenericMethod(parent._environmentFactory.StorageType));
+                    CodeBlock cb = r.Variable.Block;
+                    if (!cb.IsGlobal)
+                    {
+                        int d = cb.GetDepth();
 
-                  Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
-                  storage.EmitSet(cg);
-                  allocator.AddClosureAccessSlot(parent, storage);
+                        if (d < maxdepth)
+                        {
+                            maxdepth = d;
+                        }
+                    }
                 }
 
-                i++;
+                int diff = depth - maxdepth;
 
-                
-                if (i < diff && parent.HasEnvironment)
+                if (diff > 0)
                 {
-                  scope.EmitGet(cg);
-                  cg.EmitPropertyGet(typeof(Scope), "Parent");
-                  scope.EmitSet(cg);
+                    Slot scope = cg.GetLocalTmp(typeof(Scope));
+                    cg.EmitCodeContext();
+                    cg.EmitPropertyGet(typeof(CodeContext), "Scope");
+                    if (HasEnvironment)
+                    {
+                        cg.EmitPropertyGet(typeof(Scope), "Parent");
+                    }
+                    scope.EmitSet(cg);
+
+                    int i = 0;
+                    CodeBlock current = this;
+                    do
+                    {
+                        CodeBlock parent = current.Parent;
+                        if (parent._environmentFactory != null)
+                        {
+                            scope.EmitGet(cg);
+                            cg.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.GetStorageData)).MakeGenericMethod(parent._environmentFactory.StorageType));
+
+                            Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
+                            storage.EmitSet(cg);
+                            allocator.AddClosureAccessSlot(parent, storage);
+                        }
+
+                        i++;
+
+
+                        if (i < diff && parent.HasEnvironment)
+                        {
+                            scope.EmitGet(cg);
+                            cg.EmitPropertyGet(typeof(Scope), "Parent");
+                            scope.EmitSet(cg);
+                        }
+
+                        current = parent;
+
+                    } while (i < diff && current != null && current.IsClosure);
+
+                    cg.FreeLocalTmp(scope);
                 }
 
-                current = parent;
-                
-              } while (i < diff && current != null && current.IsClosure);
 
-              cg.FreeLocalTmp(scope);
             }
 
-
-          }
-
-          cg.DefineStartPoint();
+            cg.DefineStartPoint();
         }
 
         private void CreateScopeAccessSlots(CodeGen cg) {
@@ -563,51 +563,20 @@ namespace Microsoft.Scripting.Ast
             else return null;
         }
 
-      MethodInfo _impl;
+        MethodInfo _impl;
 
-      internal void EmitDirectCall(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType, bool tailcall)
-      {
-        if (_impl != null)
+        internal void EmitDirectCall(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType, bool tailcall)
         {
-          cg.EmitCall(_impl, tailcall);
-          return;
-        }
+            if (_impl != null)
+            {
+                cg.EmitCall(_impl, tailcall);
+                return;
+            }
 
-        // TODO: explicit delegate type may be wrapped...
-        bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
-
-        bool hasContextParameter = _explicitCodeContextExpression == null &&
-            (createWrapperMethod ||
-            IsClosure ||
-            !(cg.ContextSlot is StaticFieldSlot) ||
-            _parameterArray);
-
-        bool hasThis = HasThis();
-
-        // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
-        // the implementations should be stored on some kind of Module when available
-        CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
-
-        //// if the method has more than our maximum # of args wrap
-        //// it in a method that takes an object[] instead.
-        if (createWrapperMethod)
-        {
-          CodeGen wrapper = MakeWrapperMethodN(cg, impl, hasThis);
-          wrapper.Finish();
-          cg.EmitCall(_impl = wrapper.MethodInfo, tailcall);
-        }
-        else
-        {
-          impl.Finish();
-          cg.EmitCall(_impl = impl.MethodInfo, tailcall);
-        }
-      }
-
-        internal void EmitDelegateConstruction(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType) {
             // TODO: explicit delegate type may be wrapped...
             bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
 
-            bool hasContextParameter = _explicitCodeContextExpression == null && 
+            bool hasContextParameter = _explicitCodeContextExpression == null &&
                 (createWrapperMethod ||
                 IsClosure ||
                 !(cg.ContextSlot is StaticFieldSlot) ||
@@ -618,39 +587,70 @@ namespace Microsoft.Scripting.Ast
             // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
             // the implementations should be stored on some kind of Module when available
             CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
-            
+
+            //// if the method has more than our maximum # of args wrap
+            //// it in a method that takes an object[] instead.
+            if (createWrapperMethod)
+            {
+                CodeGen wrapper = MakeWrapperMethodN(cg, impl, hasThis);
+                wrapper.Finish();
+                cg.EmitCall(_impl = wrapper.MethodInfo, tailcall);
+            }
+            else
+            {
+                impl.Finish();
+                cg.EmitCall(_impl = impl.MethodInfo, tailcall);
+            }
+        }
+
+        internal void EmitDelegateConstruction(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType) {
+            // TODO: explicit delegate type may be wrapped...
+            bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
+
+            bool hasContextParameter = _explicitCodeContextExpression == null &&
+                (createWrapperMethod ||
+                IsClosure ||
+                !(cg.ContextSlot is StaticFieldSlot) ||
+                _parameterArray);
+
+            bool hasThis = HasThis();
+
+            // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
+            // the implementations should be stored on some kind of Module when available
+            CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
+
             // if the method has more than our maximum # of args wrap
             // it in a method that takes an object[] instead.
             if (createWrapperMethod) {
                 CodeGen wrapper = MakeWrapperMethodN(cg, impl, hasThis);
                 wrapper.Finish();
-                
+
                 if (delegateType == null) {
-                  delegateType = typeof(CallTargetN);
+                    delegateType = typeof(CallTargetN);
                 }
                 _impl = wrapper.MethodInfo;
                 if (hasContextParameter)
                 {
-                  cg.EmitCodeContext();
+                    cg.EmitCodeContext();
                 }
                 cg.EmitDelegateConstruction(wrapper, delegateType, hasContextParameter);
             } else if (_parameterArray) {
                 if (delegateType == null) {
-                  delegateType = typeof(CallTargetN);
+                    delegateType = typeof(CallTargetN);
                 }
                 if (hasContextParameter)
                 {
-                  cg.EmitCodeContext();
+                    cg.EmitCodeContext();
                 }
                 cg.EmitDelegateConstruction(impl, delegateType, hasContextParameter);
             } else {
                 if (delegateType == null) {
-                        delegateType = CallTargets.GetTargetType(false, _parameters.Count - (hasThis ? 1 : 0), hasThis);
+                    delegateType = CallTargets.GetTargetType(false, _parameters.Count - (hasThis ? 1 : 0), hasThis);
                 }
                 _impl = impl.MethodInfo;
                 if (hasContextParameter)
                 {
-                  cg.EmitCodeContext();
+                    cg.EmitCodeContext();
                 }
                 cg.EmitDelegateConstruction(impl, delegateType, hasContextParameter);
             }
@@ -698,52 +698,52 @@ namespace Microsoft.Scripting.Ast
         }
 
         private string GetGeneratedName() {
-          if (_name == "anon" || string.IsNullOrEmpty(_name) || _name.Contains("#") || _name.EndsWith("dummy"))
-          {
-            return _name + "$" + Interlocked.Increment(ref _Counter);
-          }
-          else
-          {
-            if (IsRest)
+            if (_name == "anon" || string.IsNullOrEmpty(_name) || _name.Contains("#") || _name.EndsWith("dummy"))
             {
-              return _name + "+";
+                return _name + "$" + Interlocked.Increment(ref _Counter);
             }
             else
             {
-              return _name;
+                if (IsRest)
+                {
+                    if (!_name.EndsWith("+"))
+                    {
+                        return _name + "+";
+                    }
+                }
+                return _name;
             }
-          }
         }
 
         CodeGen _stub;
 
         internal CodeGen CreateGlobalMethodStub(TypeGen tg)
         {
-          if (_stub != null)
-          {
-            return _stub;
-          }
-
-          List<Type> paramTypes = new List<Type>();
-          List<SymbolId> paramNames = new List<SymbolId>();
-          string implName;
-
-          int lastParamIndex = ComputeSignature(false, false, out paramTypes, out paramNames, out implName);
-
-          if (paramTypes.Count <= 8)
-          {
-            var cg = tg.DefineMethod(implName, _returnType, paramTypes, SymbolTable.IdsToStrings(paramNames), null);
-
-            if (_parameterArray)
+            if (_stub != null)
             {
-              cg.ParamsSlot = cg.GetArgumentSlot(lastParamIndex);
+                return _stub;
             }
-            return _stub = cg;
-          }
-          else
-          {
-            return null;
-          }
+
+            List<Type> paramTypes = new List<Type>();
+            List<SymbolId> paramNames = new List<SymbolId>();
+            string implName;
+
+            int lastParamIndex = ComputeSignature(false, false, out paramTypes, out paramNames, out implName);
+
+            if (paramTypes.Count <= 8)
+            {
+                var cg = tg.DefineMethod(implName, _returnType, paramTypes, SymbolTable.IdsToStrings(paramNames), null);
+
+                if (_parameterArray)
+                {
+                    cg.ParamsSlot = cg.GetArgumentSlot(lastParamIndex);
+                }
+                return _stub = cg;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -751,50 +751,50 @@ namespace Microsoft.Scripting.Ast
         /// </summary>
         /// <returns></returns>
         internal CodeGen CreateMethod(CodeGen outer, bool hasContextParameter, bool hasThis) {
-          CodeGen impl;
+            CodeGen impl;
 
-          if (!CodeGen._codeBlockStubs.TryGetValue(this, out impl) && 
-              !CodeGen._codeBlockStubsX.TryGetValue(this, out impl) &&
-              !CodeGen._codeBlockStubsN.TryGetValue(this, out impl))
-          {
-            List<Type> paramTypes = new List<Type>();
-            List<SymbolId> paramNames = new List<SymbolId>();
-
-            string implName;
-
-            int lastParamIndex = ComputeSignature(hasContextParameter, hasThis, out paramTypes, out paramNames, out implName);
-
-            // create the new method & setup its locals
-            impl = outer.DefineMethod(implName, _returnType,
-                paramTypes, SymbolTable.IdsToStrings(paramNames), GetStaticDataForBody(outer));
-
-            if (_parameterArray)
+            if (!CodeGen._codeBlockStubs.TryGetValue(this, out impl) &&
+                !CodeGen._codeBlockStubsX.TryGetValue(this, out impl) &&
+                !CodeGen._codeBlockStubsN.TryGetValue(this, out impl))
             {
-              impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
+                List<Type> paramTypes = new List<Type>();
+                List<SymbolId> paramNames = new List<SymbolId>();
+
+                string implName;
+
+                int lastParamIndex = ComputeSignature(hasContextParameter, hasThis, out paramTypes, out paramNames, out implName);
+
+                // create the new method & setup its locals
+                impl = outer.DefineMethod(implName, _returnType,
+                    paramTypes, SymbolTable.IdsToStrings(paramNames), GetStaticDataForBody(outer));
+
+                if (_parameterArray)
+                {
+                    impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
+                }
             }
-          }
 
-          if (_explicitCodeContextExpression != null && HasEnvironment)
+            if (_explicitCodeContextExpression != null && HasEnvironment)
             {
-              Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
-              
-              //cannot access code context slot during emit:
-              _explicitCodeContextExpression.Emit(impl);
+                Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
 
-              localContextSlot.EmitSet(impl);
-              impl.ContextSlot = localContextSlot;
+                //cannot access code context slot during emit:
+                _explicitCodeContextExpression.Emit(impl);
+
+                localContextSlot.EmitSet(impl);
+                impl.ContextSlot = localContextSlot;
 
           } else {
-            if (Parent == null || !Parent.IsGlobal)
-            {
-              impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : 
-                  (Parent == null ? impl.ContextSlot : outer.ContextSlot);
+                if (Parent == null || !Parent.IsGlobal)
+                {
+                    impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) :
+                        (Parent == null ? impl.ContextSlot : outer.ContextSlot);
+                }
             }
-          }
-          
-          impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
 
-          return impl;
+            impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
+
+            return impl;
         }
 
         private CodeGen CreateWrapperCodeGen(CodeGen outer, string implName, List<Type> paramTypes, ConstantPool staticData) {
@@ -885,52 +885,52 @@ namespace Microsoft.Scripting.Ast
 
         internal void EmitFunctionImplementation(CodeGen impl)
         {
-          // emit the actual body
+            // emit the actual body
             Debug.Assert(!Inlined);
             EmitBody(impl);
         }
 
         internal protected virtual void EmitBody(CodeGen cg) {
 
-          var prevls = cg.lambdaspan;
+            var prevls = cg.lambdaspan;
 
-          if (!ScriptDomainManager.Options.LightweightDebugging)
-          {
-            cg.lambdaspan = Span;
-          }
+            if (!ScriptDomainManager.Options.LightweightDebugging)
+            {
+                cg.lambdaspan = Span;
+            }
 
             CreateEnvironmentFactory(cg);
             CreateSlots(cg);
 
             if (ScriptDomainManager.Options.LightweightDebugging)
             {
-              if (!cg.IsDynamicMethod)
-              {
-                cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
-                cg.EmitConstant(Filename);
-                cg.EmitConstant(SpanToLong(Span));
-                cg.EmitCodeContext();
-                cg.EmitCall(Debugging.DebugMethods.ProcedureEnter);
-              }
+                if (!cg.IsDynamicMethod)
+                {
+                    cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
+                    cg.EmitConstant(Filename);
+                    cg.EmitConstant(SpanToLong(Span));
+                    cg.EmitCodeContext();
+                    cg.EmitCall(Debugging.DebugMethods.ProcedureEnter);
+                }
             }
 
             Body.Emit(cg);
 
             if (!ScriptDomainManager.Options.LightweightDebugging)
             {
-              cg.lambdaspan = prevls;
+                cg.lambdaspan = prevls;
             }
         }
 
         // This is used for compiling the toplevel CodeBlock object.
-        internal T CreateDelegate<T>(CompilerContext context) 
+        internal T CreateDelegate<T>(CompilerContext context)
             where T : class {
             CodeGen cg = CompilerHelpers.CreateDynamicCodeGenerator(context);
             cg.Allocator = CompilerHelpers.CreateFrameAllocator();
-            
-            cg.EnvironmentSlot = new EnvironmentSlot(                
+
+            cg.EnvironmentSlot = new EnvironmentSlot(
                 new PropertySlot(
-                    new PropertySlot(cg.ContextSlot, 
+                    new PropertySlot(cg.ContextSlot,
                         typeof(CodeContext).GetProperty("Scope")),
                     typeof(Scope).GetProperty("Dict"))
                 );
@@ -943,79 +943,79 @@ namespace Microsoft.Scripting.Ast
 
         internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars, CodeGen cg, Type parentType)
         {
-          Type storageType = GenerateStorageType(vars, cg, parentType);
-          Type envType = typeof(Storage<>).MakeGenericType(storageType);
-          return new ClassEnvironmentFactory(storageType, envType);
+            Type storageType = GenerateStorageType(vars, cg, parentType);
+            Type envType = typeof(Storage<>).MakeGenericType(storageType);
+            return new ClassEnvironmentFactory(storageType, envType);
         }
 
         static int closure_counter = 0;
 
         static Type GenerateStorageType(List<Variable> vars, CodeGen cg, Type parentType)
         {
-          int c = Interlocked.Increment(ref closure_counter);
-          var tg = cg.TypeGen.AssemblyGen.DefineType("$closures.$env" + c, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
+            int c = Interlocked.Increment(ref closure_counter);
+            var tg = cg.TypeGen.AssemblyGen.DefineType("$closures.$env" + c, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
 
-          tg.TypeBuilder.DefineField("$parent$", typeof(IAttributesCollection), FieldAttributes.Public);
+            tg.TypeBuilder.DefineField("$parent$", typeof(IAttributesCollection), FieldAttributes.Public);
 
-          foreach (var v in vars)
-          {
-            tg.TypeBuilder.DefineField(SymbolTable.IdToString(v.Name), v.Type, FieldAttributes.Public);
-          }
+            foreach (var v in vars)
+            {
+                tg.TypeBuilder.DefineField(SymbolTable.IdToString(v.Name), v.Type, FieldAttributes.Public);
+            }
 
-          var t = tg.FinishType();
+            var t = tg.FinishType();
 
-          return t;
+            return t;
         }
 
         public void AddParameter(Variable par)
         {
-          _parameters.Add(par);
-          _parametersmap.Add(par.Name, par);
+            _parameters.Add(par);
+            _parametersmap.Add(par.Name, par);
         }
 
-      // for rewriting
+        // for rewriting
         public void AddVariable(Variable par)
         {
-          Debug.Assert(!_variables.Contains(par));
-          Debug.Assert(!_variablesmap.ContainsKey(par.Name));
-          _variables.Add(par);
-          _variablesmap.Add(par.Name, par);
+            Debug.Assert(!_variables.Contains(par));
+            Debug.Assert(!_variablesmap.ContainsKey(par.Name));
+            _variables.Add(par);
+            _variablesmap.Add(par.Name, par);
         }
 
         public int ParameterCount
         {
-          get { return _parameters.Count; }
+            get { return _parameters.Count; }
         }
 
         public void RemoveVariables(List<Variable> toremove)
         {
-          foreach (var v in toremove)
-          {
-            _variables.Remove(v);
-            _variablesmap.Remove(v.Name);
-          }
+            foreach (var v in toremove)
+            {
+                _variables.Remove(v);
+                _variablesmap.Remove(v.Name);
+            }
         }
 
         internal void ResetBindings()
         {
-          foreach (var v in Parameters)
-          {
-            v.Lift = false;
-          }
-          foreach (var v in Variables)
-          {
-            v.Lift = false;
-          }
-          HasEnvironment = false;
+            foreach (var v in Parameters)
+            {
+                v.Lift = false;
+            }
+            foreach (var v in Variables)
+            {
+                v.Lift = false;
+            }
+            HasEnvironment = false;
         }
     }
 
     public class CodeBlockDescriptor
     {
-      public int arity;
-      public CodeBlockExpression codeblock;
-      public Expression callable;
-      public bool varargs;
+        public int arity;
+        public CodeBlockExpression codeblock;
+        public Expression callable;
+        public bool varargs;
     }
 
     public static partial class Ast {

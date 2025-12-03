@@ -163,7 +163,7 @@ See docs/license.txt. |#
                 (case-lambda:
                   [((x1 : flonum) (x2 : flonum) -> bool)
                     (uname x1 x2)]
-                  [((x1 : flonum) (x2 : flonum) #(rest) -> bool)
+                  [((x1 : flonum) (x2 : flonum) rest (... ...) -> bool)
                     (let: f (((a : flonum) x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
@@ -191,7 +191,7 @@ See docs/license.txt. |#
                   [(-> flonum) id]
                   [((x1 : flonum) (x2 : flonum) -> flonum)
                     (uname x1 x2)]
-                  [(#(args) -> flonum)
+                  [(args (... ...) -> flonum)
                     (fold-left name (name) args)])))])))  
                     
   (define-fl-binop0 fl+ 0.0)                    
@@ -213,7 +213,7 @@ See docs/license.txt. |#
         ($fl- x1)]
       [((x1 : flonum) (x2 : flonum) -> flonum)
         ($fl- x1 x2)]
-      [((x1 : flonum) (x2 : flonum) #(rest) -> flonum)
+      [((x1 : flonum) (x2 : flonum) rest ... -> flonum)
         (fold-left fl- x1 (cons x2 rest))]))
         
   (define fl/
@@ -222,7 +222,7 @@ See docs/license.txt. |#
         ($fl/ 1.0 x1)]
       [((x1 : flonum) (x2 : flonum) -> flonum)
         ($fl/ x1 x2)]
-      [((x1 : flonum) (x2 : flonum) #(rest) -> flonum)
+      [((x1 : flonum) (x2 : flonum) rest ... -> flonum)
         (fold-left fl/ x1 (cons x2 rest))]))        
                                 
   (define-fl* (fldiv0 x1 x2)

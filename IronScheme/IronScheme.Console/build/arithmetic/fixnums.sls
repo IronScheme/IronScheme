@@ -266,7 +266,7 @@ See docs/license.txt. |#
                 (case-lambda:
                   [((x1 : fixnum) (x2 : fixnum) -> bool)
                     (uname x1 x2)]
-                  [((x1 : fixnum) (x2 : fixnum) #(rest) -> bool)
+                  [((x1 : fixnum) (x2 : fixnum) rest (... ...) -> bool)
                     (let: f (((a : fixnum) x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
@@ -295,7 +295,7 @@ See docs/license.txt. |#
                   [((x : fixnum) -> fixnum) x]
                   [((x1 : fixnum) (x2 : fixnum) -> fixnum)
                     (uname x1 x2)]
-                  [(#(args) -> fixnum)
+                  [(args (... ...) -> fixnum)
                     (fold-left name (name) args)])))])))
 
   (define-fx-bitop fxand -1)

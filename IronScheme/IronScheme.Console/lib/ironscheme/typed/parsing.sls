@@ -21,10 +21,12 @@ See docs/license.txt. |#
     (lambda (x)
       (define (parse type)
         (syntax-case type (->)
-          [(arg ... #(rest) -> ret)
+          [(arg ... rest ellipse -> ret)
+            (and (identifier? #'rest) (identifier? #'ellipse) (free-identifier=? #'ellipse #'(... ...)))
             (with-syntax (((arg ...) (map parse-type #'(arg ...)))
+                          (rest (parse-type #'rest))
                           (ret (parse-type #'ret)))
-              #'((arg ...) ret))]
+              #'((arg ...) rest ret))]
           [(arg ... -> ret)
             (with-syntax (((arg ...) (map parse-type #'(arg ...)))
                           (ret (parse-type #'ret)))
@@ -43,7 +45,8 @@ See docs/license.txt. |#
                 
   (define (parse-lambda-clause x)
     (syntax-case x (->)
-      [((arg ... #(rest) -> ret-type) b b* ...)
+      [((arg ... rest ellipse -> ret-type) b b* ...)
+        (and (identifier? #'rest) (identifier? #'ellipse) (free-identifier=? #'ellipse #'(... ...)))
         (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...))))
           (with-syntax (((type ...) (map parse-type #'(type ...)))
                         (ret-type (parse-type #'ret-type)))
@@ -66,8 +69,10 @@ See docs/license.txt. |#
         (identifier? #'arg) 
         #'(arg type)]
       [arg 
-        (identifier? #'arg) 
-        #'(arg Object)]))
+        (identifier? #'arg)
+        (if (free-identifier=? #'arg #'(... ...))
+          (syntax-violation 'parse-arg-type "invalid usage of ...  in macro" #'arg x)
+          #'(arg Object))]))
       
   (define (parse-name-type-expr x)
     (syntax-case x (:)

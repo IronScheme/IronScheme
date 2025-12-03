@@ -68,7 +68,12 @@ namespace IronScheme.Compiler
 
           if (isrest)
           {
-            cb.Name += "+";
+            if (!cb.Name.EndsWith("+"))
+            {
+              cb.Name += "+";
+            }
+
+            cb.IsRest = true;
           }
 
           List<Statement> stmts = new List<Statement>();

@@ -623,7 +623,7 @@ See docs/license.txt. |#
                         (inexact=? (inexact a) (inexact b))]
                       [else
                         (assertion-violation 'name "not number arguments" a b)])]
-                  [(x1 x2 #(rest) -> bool)
+                  [(x1 x2 rest (... ...) -> bool)
                     (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
@@ -660,7 +660,7 @@ See docs/license.txt. |#
                         (uname (inexact-compare (inexact a) (inexact b)) 0)]                                                
                       [else
                         (assertion-violation 'name "not real arguments" a b)])]
-                  [(x1 x2 #(rest) -> bool)
+                  [(x1 x2 rest (... ...) -> bool)
                     (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]

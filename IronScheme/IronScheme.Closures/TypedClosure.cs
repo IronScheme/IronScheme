@@ -339,7 +339,8 @@ namespace IronScheme.Runtime.Typed
               // if varargs then this must be #(name)
               if (IsVarargs && i == pis.Length - 1)
               {
-                form.Add(new object[] { SymbolTable.StringToObject(pi.Name) });
+                form.Add(SymbolTable.StringToObject(pi.Name));
+                form.Add(SymbolTable.StringToObject("..."));
               }
               else
               {
