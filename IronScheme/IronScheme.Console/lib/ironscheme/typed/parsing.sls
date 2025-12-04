@@ -60,6 +60,9 @@ See docs/license.txt. |#
             #'((id ...) 
                ((type ...) ret-type)
                b b* ...)))]        
+      [((arg ... . rest) b b* ...)
+        (identifier? #'rest)
+        (parse-lambda-clause #'((arg ... rest (... ...) -> Object) b b* ...))]
       [((arg ...) b b* ...)
         (parse-lambda-clause #'((arg ... -> Object) b b* ...))]))
      

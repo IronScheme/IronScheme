@@ -32,6 +32,19 @@ See docs/license.txt. |#
           (and type-spec
                (datum->syntax id type-spec))))
       (syntax-case x (:)
+        [(_ (id arg ... . rest) b b* ...)
+          (identifier? #'rest)
+          (lambda (lookup)
+            (let ((type-spec (get-spec #'id lookup)))
+              (if type-spec
+                  (with-syntax [(type-spec type-spec)]
+                    #'(define id
+                        (typed-lambda (arg ...) 
+                          type-spec rest
+                          b b* ...)))
+                  (with-syntax (((e ...) (parse-lambda-clause #'((arg ... . rest) b b* ...))))
+                    #'(define id
+                        (typed-lambda e ...))))))]
         [(_ (id arg ...) b b* ...)
           (lambda (lookup)
             (let ((type-spec (get-spec #'id lookup)))
