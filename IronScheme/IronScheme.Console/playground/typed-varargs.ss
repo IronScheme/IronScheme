@@ -44,3 +44,14 @@
 
 ; bad syntax, looks natural, but is not
 ;(lambda: (() -> flonum) 3.14159)
+
+
+(import (ironscheme) (ironscheme typed))
+(define (a) 
+  (letrec*: 
+    (((a : fixnum) 10)
+     ((b : fixnum) (+ a 5))
+     ((c : fixnum) (+ b 3))
+     -> fixnum)
+    (+ a b c)))
+(disassemble a)
