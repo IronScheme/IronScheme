@@ -153,6 +153,11 @@ namespace IronScheme.Compiler
         var ft = mt.MakeGenericType(ga.ToArray());
         return ft;
       }
+      else if (type is object[] arr && arr.Length == 1)
+      {
+        var et = ReadType(arr[0]);
+        return et?.MakeArrayType();
+      }
       else if (type is SymbolId)
       {
         var st = SymbolTable.IdToString((SymbolId) type);
