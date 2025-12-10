@@ -21,3 +21,4 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 /IronScheme/coverage.xml
 /IronScheme/*.nettrace
 /IronScheme/*.speedscope.json
+/.claude/settings.local.json
