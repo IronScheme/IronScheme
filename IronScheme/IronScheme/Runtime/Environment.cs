@@ -19,11 +19,18 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Disassemble(object proc)
     {
-      return Disassemble(proc, FALSE);
+      var error = "(current-error-port)".Eval<TextWriter>();
+      return Disassemble(proc, FALSE, error);
     }
 
     [Builtin]
-    public static object Disassemble(object proc, object argcount)
+    public static object Disassemble(object proc, TextWriter writer)
+    {
+      return Disassemble(proc, FALSE, writer);
+    }
+
+    [Builtin]
+    public static object Disassemble(object proc, object argcount, TextWriter writer)
     {
       if (proc is Closure)
       {
@@ -44,7 +51,7 @@ namespace IronScheme.Runtime
             {
               if (m.GetParameters().Length == ac)
               {
-                return DisassembleMethod(m);
+                return DisassembleMethod(m, writer);
               }
             }
 
@@ -52,7 +59,7 @@ namespace IronScheme.Runtime
             {
               if (m.GetParameters().Length <= ac - 1)
               {
-                return DisassembleMethod(m);
+                return DisassembleMethod(m, writer);
               }
             }
 
@@ -70,11 +77,11 @@ namespace IronScheme.Runtime
 
         if (st.Length == 1)
         {
-          return DisassembleMethod(st[0]);
+          return DisassembleMethod(st[0], writer);
         }
         else
         {
-          return DisassembleMethod(vt[0]);
+          return DisassembleMethod(vt[0], writer);
         }
       }
       else
@@ -83,27 +90,27 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object DisassembleMethod(MethodInfo meth)
+    static object DisassembleMethod(MethodInfo meth, TextWriter writer)
     {
-      Console.WriteLine(meth);
+      writer.WriteLine(meth);
 
       var locals = meth.GetMethodBody().LocalVariables;
 
       if (locals.Count > 0)
       {
-        Console.WriteLine(".locals init (");
+        writer.WriteLine(".locals init (");
        
         foreach (var l in locals)
         {
-          Console.WriteLine("  {0}", l);
+          writer.WriteLine("  {0}", l);
         }
 
-        Console.WriteLine(")");
+        writer.WriteLine(")");
       }
 
       foreach (var inst in Reflection.Disassembler.GetInstructions(meth))
       {
-        Console.WriteLine(inst);
+        writer.WriteLine(inst);
       }
       return Unspecified;
     }
