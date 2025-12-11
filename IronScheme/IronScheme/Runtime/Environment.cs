@@ -48,7 +48,13 @@ namespace IronScheme.Runtime
 
             foreach (var m in at)
             {
-              if (m.GetParameters().Length == ac)
+              var p = m.GetParameters();
+              var pc = p.Length;
+              if (p.Length > 0 && p[0].ParameterType == typeof(CodeContext))
+              {
+                pc -= 1;
+              }
+              if (pc == ac)
               {
                 return DisassembleMethod(m, writer);
               }
