@@ -84,7 +84,15 @@ namespace IronScheme.Compiler
             vars[i].Type = e.Type;
           }
         }
-        else if (e.Type.IsValueType)
+        else if (e is ConstantExpression && e.Type.IsValueType)
+        {
+          if (notstrict)
+          {
+            vars[i].SetInitialized();
+            vars[i].Type = e.Type;
+          }
+        }
+        else if (e.Type.IsValueType && !notstrict)
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
