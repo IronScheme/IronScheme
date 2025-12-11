@@ -121,7 +121,7 @@ namespace IronScheme.Runtime
 
     public override object Form
     {
-      get 
+      get
       {
         if (target == null || target.Method == null)
         {
@@ -145,7 +145,7 @@ namespace IronScheme.Runtime
             if (pi.ParameterType.IsArray)
             {
               form.Add(SymbolTable.StringToObject(pi.Name ?? "<more than 8>"));
-              var _res = ConsStarFromArray(form.ToArray()); 
+              var _res = ConsStarFromArray(form.ToArray());
               return _res;
             }
             else if (pi.ParameterType != cctype)
@@ -156,7 +156,7 @@ namespace IronScheme.Runtime
         }
 
         // prevent tail call
-        var result = ConsFromArray(form.ToArray()); 
+        var result = ConsFromArray(form.ToArray());
         return result;
       }
     }
@@ -228,7 +228,12 @@ namespace IronScheme.Runtime
     {
       get { return None; }
     }
-    
+
+    public virtual MethodInfo[] AllTargets
+    {
+      get { return None; }
+    }
+
     protected Closure() : this(null, -1)
     {
     }
@@ -279,6 +284,11 @@ namespace IronScheme.Runtime
       public override MethodInfo[] Targets
       {
         get { return IsValid(target.Method) && target.Target == null ? new MethodInfo[] { target.Method } : None; }
+      }
+
+      public override MethodInfo[] AllTargets
+      {
+        get { return new MethodInfo[] {target.Method } ; }
       }
 
       [DebuggerStepThrough]
@@ -496,6 +506,11 @@ namespace IronScheme.Runtime
         get { return IsValid(target.Method) && target.Target == null ? new MethodInfo[] { target.Method } : None; }
       }
 
+      public override MethodInfo[] AllTargets
+      {
+        get { return new MethodInfo[] {target.Method } ; }
+      }
+
       public override object Form
       {
         get
@@ -558,7 +573,7 @@ namespace IronScheme.Runtime
 
       public override MethodInfo[] Targets
       {
-        get 
+        get
         {
           List<MethodInfo> mis = new List<MethodInfo>();
           for (int i = 0; i < targets.Count; i++)
@@ -568,7 +583,7 @@ namespace IronScheme.Runtime
               mis.AddRange(((Closure)targets[i]).Targets);
             }
           }
-          return mis.ToArray(); 
+          return mis.ToArray();
         }
       }
 
@@ -584,6 +599,19 @@ namespace IronScheme.Runtime
             {
               mis.AddRange(((Closure)targets[i]).VarargTargets);
             }
+          }
+          return mis.ToArray();
+        }
+      }
+
+      public override MethodInfo[] AllTargets
+      {
+        get
+        {
+          List<MethodInfo> mis = new List<MethodInfo>();
+          for (int i = 0; i < targets.Count; i++)
+          {
+            mis.AddRange(((Closure)targets[i]).AllTargets);
           }
           return mis.ToArray();
         }
@@ -618,7 +646,7 @@ namespace IronScheme.Runtime
 
       public override object Arity
       {
-        get 
+        get
         {
           List<object> arities = new List<object>();
           foreach (Callable c in targets)

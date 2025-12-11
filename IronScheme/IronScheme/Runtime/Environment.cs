@@ -35,9 +35,8 @@ namespace IronScheme.Runtime
       if (proc is Closure)
       {
         var c = RequiresNotNull<Closure>(proc);
-        var st = c.Targets;
-        var vt = c.VarargTargets;
-        var tc = st.Length + vt.Length;
+        var at = c.AllTargets;
+        var tc = at.Length;
         // implies case closure
         if (tc > 1)
         {
@@ -47,17 +46,9 @@ namespace IronScheme.Runtime
             int ac = Requires<int>(argcount);
             // now figure out what can be used...
 
-            foreach (var m in st)
+            foreach (var m in at)
             {
               if (m.GetParameters().Length == ac)
-              {
-                return DisassembleMethod(m, writer);
-              }
-            }
-
-            foreach (var m in vt)
-            {
-              if (m.GetParameters().Length <= ac - 1)
               {
                 return DisassembleMethod(m, writer);
               }
@@ -74,14 +65,9 @@ namespace IronScheme.Runtime
         {
           return AssertionViolation("disassemble", "not possible on procedure", proc);
         }
-
-        if (st.Length == 1)
+        else // if (tc == 1) // only thing left
         {
-          return DisassembleMethod(st[0], writer);
-        }
-        else
-        {
-          return DisassembleMethod(vt[0], writer);
+          return DisassembleMethod(at[0], writer);
         }
       }
       else
@@ -99,7 +85,7 @@ namespace IronScheme.Runtime
       if (locals.Count > 0)
       {
         writer.WriteLine(".locals init (");
-       
+
         foreach (var l in locals)
         {
           writer.WriteLine("  {0}", l);

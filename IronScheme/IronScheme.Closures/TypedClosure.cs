@@ -388,6 +388,11 @@ namespace IronScheme.Runtime.Typed
       }
     }
 
+    public override MethodInfo[] AllTargets
+    {
+        get { return new MethodInfo[] { TypedTarget } ; }
+    }
+
     [DebuggerStepThrough]
     protected object CallVarArgs(params object[] args)
     {
