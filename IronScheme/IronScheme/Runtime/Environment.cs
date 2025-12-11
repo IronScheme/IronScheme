@@ -19,14 +19,14 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Disassemble(object proc)
     {
-      var error = "(current-error-port)".Eval<TextWriter>();
-      return Disassemble(proc, FALSE, error);
+      return Disassemble(proc, FALSE);
     }
 
     [Builtin]
-    public static object Disassemble(object proc, TextWriter writer)
+    public static object Disassemble(object proc, object argcount)
     {
-      return Disassemble(proc, FALSE, writer);
+      var error = "(current-error-port)".Eval<TextWriter>();
+      return Disassemble(proc, argcount, error);
     }
 
     [Builtin]
