@@ -368,16 +368,17 @@ namespace IronScheme.Runtime
 
     public static object[] DeserializeAssemblyConstants(Type t)
     {
+      var fn = t.Namespace  + "." + t.Name + ".SerializedConstants";
       var ass = t.Assembly;
       var names = ass.GetManifestResourceNames();
       for (int i = 0; i < names.Length; i++)
       {
         var name = names[i];
-        if (name.StartsWith("SerializedConstants"))
+        if (name.StartsWith(fn))
         {
           if (name.EndsWith(".gz"))
           {
-            using (var s = ass.GetManifestResourceStream("SerializedConstants.gz"))
+            using (var s = ass.GetManifestResourceStream(fn + ".gz"))
             {
               var arr = psyntax.Serialization.SERIALIZER.Deserialize(new GZipStream(s, CompressionMode.Decompress));
               return arr as object[];
@@ -385,7 +386,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            using (var s = ass.GetManifestResourceStream("SerializedConstants"))
+            using (var s = ass.GetManifestResourceStream(fn))
             {
               var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
               return arr as object[];
@@ -395,15 +396,14 @@ namespace IronScheme.Runtime
       }
 
       var fields  = t.Module.GetFields(BindingFlags.NonPublic | BindingFlags.Static);
-      if (fields.Length > 0)
+      foreach (var fi in fields)
       {
-        var fi = fields[0];
-        if (fi.Name.StartsWith("SerializedConstants"))
+        if (fi.Name.StartsWith(fn))
         {
           var ca = fi.FieldType.StructLayoutAttribute;
           var data = new byte[ca.Size];
           System.Runtime.CompilerServices.RuntimeHelpers.InitializeArray(data, fi.FieldHandle);
-          
+
           using (var ms = new MemoryStream(data))
           {
             var s = fi.Name.EndsWith(".gz") ? (Stream) new GZipStream(ms, CompressionMode.Decompress) : ms;
@@ -448,7 +448,7 @@ namespace IronScheme.Runtime
       return wrapper as Delegate;
     }
 
-    readonly static Type[] CallTargets = 
+    readonly static Type[] CallTargets =
     {
       typeof(CallTarget0),
       typeof(CallTarget1),
@@ -483,12 +483,12 @@ namespace IronScheme.Runtime
           Builtins.AssertionViolation("ConvertToDelegate", "delegate is not compatible: " + ex.Message, proc, typeof(T));
         }
       }
-      
+
       if (!(proc is Callable))
       {
         Builtins.AssertionViolation("ConvertToDelegate", "not a procedure", proc);
       }
-      
+
       MethodInfo meth = typeof(T).GetMethod("Invoke");
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))

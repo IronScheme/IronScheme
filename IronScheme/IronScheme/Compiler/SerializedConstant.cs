@@ -44,7 +44,9 @@ namespace IronScheme.Compiler
       }
       else
       {
-        var tg = cg.TypeGen;
+        // main type
+        var mt = cg.TypeGen;
+        var tg = mt.Constants;
         var ag = tg.AssemblyGen;
         index = tg.ConstantCounter;
         var snippets = ScriptDomainManager.CurrentManager.Snippets;
@@ -59,7 +61,7 @@ namespace IronScheme.Compiler
         }
         else
         {
-          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "$z$" + index);
+          fs = tg.AddStaticField(typeof(object), FieldAttributes.Assembly, "$z$" + index);
           tg.SerializedConstants.Add(this);
 
           var tcg = tg.TypeInitializer;
@@ -69,7 +71,7 @@ namespace IronScheme.Compiler
             arrloc = tcg.DeclareLocal(typeof(object[]));
             // first
             // setup deserializtion to array, then assign to fields
-            tcg.EmitType(tg.TypeBuilder);
+            tcg.EmitType(mt.TypeBuilder);
             tcg.EmitCall(typeof(Runtime.Helpers), "DeserializeAssemblyConstants");
 
             tcg.Emit(OpCodes.Stloc, arrloc);
@@ -91,7 +93,8 @@ namespace IronScheme.Compiler
               s.Position = 0;
 
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
-              PAL.SerializeConstants(s, mb, compress);
+              var fn = mt.TypeBuilder.Namespace + "." + mt.TypeBuilder.Name + ".SerializedConstants";
+              PAL.SerializeConstants(s, mb, compress, fn);
             };
           }
 

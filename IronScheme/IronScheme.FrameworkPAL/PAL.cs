@@ -267,7 +267,7 @@ namespace IronScheme.FrameworkPAL
 #endif
     }
 
-    public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
+    public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress, string name)
     {
 #if NET9_0_OR_GREATER
       if (compress)
@@ -278,11 +278,11 @@ namespace IronScheme.FrameworkPAL
         cs.Write(content, 0, content.Length);
         cs.Close();
 
-        mb.DefineInitializedData("SerializedConstants.gz", cms.ToArray(), FieldAttributes.Private);
+        mb.DefineInitializedData(name + ".gz", cms.ToArray(), FieldAttributes.Private);
       }
       else
       {
-        mb.DefineInitializedData("SerializedConstants", s.ToArray(), FieldAttributes.Private);
+        mb.DefineInitializedData(name, s.ToArray(), FieldAttributes.Private);
       }
 #elif !NETCOREAPP2_1_OR_GREATER
       if (compress)
@@ -293,11 +293,11 @@ namespace IronScheme.FrameworkPAL
         cs.Write(content, 0, content.Length);
         cs.Close();
 
-        mb.DefineManifestResource("SerializedConstants.gz", cms, ResourceAttributes.Private);
+        mb.DefineManifestResource(name + ".gz", cms, ResourceAttributes.Private);
       }
       else
       {
-        mb.DefineManifestResource("SerializedConstants", s, ResourceAttributes.Private);
+        mb.DefineManifestResource(name, s, ResourceAttributes.Private);
       }
 #else
       throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
@@ -329,7 +329,7 @@ namespace IronScheme.FrameworkPAL
 
       public void Serialize(Stream serializationStream, object graph)
       {
-        bf.Serialize(serializationStream, graph); 
+        bf.Serialize(serializationStream, graph);
       }
 
       sealed class Selector : SurrogateSelector
