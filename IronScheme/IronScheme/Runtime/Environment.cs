@@ -11,6 +11,8 @@ using System.Text;
 using Microsoft.Scripting;
 using System.Threading;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace IronScheme.Runtime
 {
@@ -84,6 +86,9 @@ namespace IronScheme.Runtime
 
     static object DisassembleMethod(MethodInfo meth, TextWriter writer)
     {
+      var name = meth.Name;
+      var closures = new List<MethodInfo>();
+
       writer.WriteLine(meth);
 
       var locals = meth.GetMethodBody().LocalVariables;
@@ -103,7 +108,24 @@ namespace IronScheme.Runtime
       foreach (var inst in Reflection.Disassembler.GetInstructions(meth))
       {
         writer.WriteLine(inst);
+
+        if (inst.OpCode == OpCodes.Ldftn && inst.Operand is MethodInfo)
+        {
+          var mi = (MethodInfo)inst.Operand;
+          if (mi.Name.StartsWith(name) && mi.Name != name)
+          {
+            closures.Add(mi);
+          }
+        }
       }
+
+      foreach (var c in closures)
+      {
+        writer.WriteLine();
+        writer.WriteLine("// Closure:");
+        DisassembleMethod(c, writer);
+      }
+
       return Unspecified;
     }
 
