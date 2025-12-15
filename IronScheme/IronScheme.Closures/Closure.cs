@@ -229,7 +229,7 @@ namespace IronScheme.Runtime
       get { return None; }
     }
 
-    public virtual MethodInfo[] AllTargets
+    public override MethodInfo[] AllTargets
     {
       get { return None; }
     }

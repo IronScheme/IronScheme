@@ -34,53 +34,46 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Disassemble(object proc, object argcount, TextWriter writer)
     {
-      if (proc is Closure)
+      var c = RequiresNotNull<Callable>(proc);
+      var at = c.AllTargets;
+      var tc = at.Length;
+      // implies case closure
+      if (tc > 1)
       {
-        var c = RequiresNotNull<Closure>(proc);
-        var at = c.AllTargets;
-        var tc = at.Length;
-        // implies case closure
-        if (tc > 1)
+        // check for valid arg count
+        if (argcount != FALSE)
         {
-          // check for valid arg count
-          if (argcount != FALSE)
-          {
-            int ac = Requires<int>(argcount);
-            // now figure out what can be used...
+          int ac = Requires<int>(argcount);
+          // now figure out what can be used...
 
-            foreach (var m in at)
+          foreach (var m in at)
+          {
+            var p = m.GetParameters();
+            var pc = p.Length;
+            if (p.Length > 0 && p[0].ParameterType == typeof(CodeContext))
             {
-              var p = m.GetParameters();
-              var pc = p.Length;
-              if (p.Length > 0 && p[0].ParameterType == typeof(CodeContext))
-              {
-                pc -= 1;
-              }
-              if (pc == ac)
-              {
-                return DisassembleMethod(m, writer);
-              }
+              pc -= 1;
             }
+            if (pc == ac)
+            {
+              return DisassembleMethod(m, writer);
+            }
+          }
 
-            return AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
-          }
-          else
-          {
-            return AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
-          }
+          return AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
         }
-        else if (tc == 0)
+        else
         {
-          return AssertionViolation("disassemble", "not possible on procedure", proc);
-        }
-        else // if (tc == 1) // only thing left
-        {
-          return DisassembleMethod(at[0], writer);
+          return AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
         }
       }
-      else
+      else if (tc == 0)
       {
-        return AssertionViolation("disassemble", "builtin procedures not supported, consult the source code", proc);
+        return AssertionViolation("disassemble", "not possible on procedure", proc);
+      }
+      else // if (tc == 1) // only thing left
+      {
+        return DisassembleMethod(at[0], writer);
       }
     }
 
