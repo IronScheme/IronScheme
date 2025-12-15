@@ -19,6 +19,6 @@
   </metadata>
 
   <files>
-    <file src="IronScheme\lib\ironscheme\**" target="content\lib\ironscheme\" exclude="**\web*.*;**web**;**\xml.sls"/>
+    <file src="IronScheme\lib\ironscheme\**" target="content\lib\ironscheme\" exclude="**\web*.*;**web**;**\xml.sls" buildAction="Content" copyToOutput="true"/>
   </files>
 </package>
