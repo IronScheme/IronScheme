@@ -19,7 +19,6 @@
   </metadata>
 
   <files>
-    <file src="IronScheme\system-libraries*.ss" target="content\" />
-    <file src="IronScheme\lib\**" target="content\lib\" exclude="**\web*.*;**web**;**\xml.sls"/>
+    <file src="IronScheme\lib\ironscheme\**" target="content\lib\ironscheme\" exclude="**\web*.*;**web**;**\xml.sls"/>
   </files>
 </package>
