@@ -14,6 +14,6 @@ echo on
 if "%APPVEYOR_BUILD_FOLDER%"=="%CD%" exit /b %ERRORLEVEL%
 
 copy bin\IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%*.zip %APPVEYOR_BUILD_FOLDER%
-copy bin\IronScheme.*.%APPVEYOR_BUILD_VERSION%*.*nupkg %APPVEYOR_BUILD_FOLDER%
+copy bin\IronScheme*.%APPVEYOR_BUILD_VERSION%*.*nupkg %APPVEYOR_BUILD_FOLDER%
 cd %APPVEYOR_BUILD_FOLDER%
 @echo off
