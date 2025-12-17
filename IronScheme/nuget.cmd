@@ -1,6 +1,11 @@
 @echo off
 setlocal
 
+pushd IronScheme.Console\bin\Release\net20\install-stage
+mkdir tmp\contentFiles\any\any\
+mklink /j tmp\contentFiles\any\any\lib IronScheme\lib
+popd
+
 pushd IronScheme.Nuget
 dotnet pack -tl:off -p:PackageName=Core %*
 dotnet pack -tl:off %*

@@ -16,9 +16,8 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="$version$" />
     </dependencies>
+    <contentFiles>
+      <files include="any/any/lib/ironscheme/**" exclude="**\web*.*;**web**;**\xml.sls"  buildAction="Content" copyToOutput="true" flatten="false" />
+    </contentFiles>
   </metadata>
-
-  <files>
-    <file src="IronScheme\lib\ironscheme\**" target="content\lib\ironscheme\" exclude="**\web*.*;**web**;**\xml.sls"/>
-  </files>
 </package>
