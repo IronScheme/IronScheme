@@ -1,5 +1,5 @@
 <Project>
-  <Target Name="unfuck" AfterTargets="Restore">
+  <Target Name="unfuck" BeforeTargets="Build">
     <Warning Code="UNFUCK" Text="Ironscheme needs unfucking" />
   </Target>
 </Project>
