@@ -2,8 +2,8 @@
 setlocal
 
 pushd IronScheme.Console\bin\Release\net20\install-stage
-mkdir tmp\contentFiles\any\any\lib\
-mklink /j tmp\contentFiles\any\any\lib\ironscheme IronScheme\lib\ironscheme\
+mkdir tmp\contentFiles\any\any\
+mklink /j tmp\contentFiles\any\any\lib IronScheme\lib
 popd
 
 pushd IronScheme.Nuget
