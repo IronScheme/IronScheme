@@ -1,5 +1,7 @@
 <Project>
-  <Target Name="unfuck" BeforeTargets="Build">
-    <Warning Code="UNFUCK" Text="Ironscheme needs unfucking" />
+  <Target Name="unfuck" BeforeTargets="Build" Condition="Exists('$(MSBuildThisFileDirectory)/nuget.sls')">
+    <Warning Code="UNFUCK" Text="Ironscheme needs unfucking for real $(MSBuildThisFileDirectory)" />
+
+    <Delete Files="$(MSBuildThisFileDirectory)/nuget.sls" />
   </Target>
 </Project>

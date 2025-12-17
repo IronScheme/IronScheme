@@ -18,7 +18,7 @@
     </dependencies>
     <contentFiles>
       <files include="any/any/lib/**" exclude="**\web*.*;**web**;**\xml.sls"  buildAction="Content" copyToOutput="true" flatten="false" />
-      <files include="any/any/nuget.sls" buildAction="Content" copyToOutput="true" flatten="false" />
+      <files include="any/any/nuget.sls" buildAction="None" copyToOutput="false" flatten="false" />
     </contentFiles>
   </metadata>
 </package>
