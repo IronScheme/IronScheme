@@ -7,13 +7,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Scripting;
 using IronScheme.Hosting;
 using Microsoft.Scripting.Hosting;
 using IronScheme.Runtime;
 using System.Text.RegularExpressions;
-using System.IO;
 using System.Reflection;
 
 namespace IronScheme
@@ -30,7 +28,7 @@ namespace IronScheme
     public static ScriptEngine ScriptEngine
     {
       get { return se; }
-    } 
+    }
 
     public const string INTERACTION_ENVIRONMENT = "(interaction-environment)";
 
@@ -129,7 +127,7 @@ namespace IronScheme
       return (T)EvalWithEnvironmentInstance(expr, env, args);
     }
 
-    readonly static Type[] CallTargets = 
+    readonly static Type[] CallTargets =
     {
       typeof(CallTarget0),
       typeof(CallTarget1),
@@ -185,18 +183,6 @@ namespace IronScheme
     static int Main(string[] args)
     {
       return IronSchemeConsoleHost.Execute(args);
-    }
-  }
-  
-  public class ExecutableLoader : MarshalByRefObject
-  {
-    public ExecutableLoader(Stream s, string[] args)
-    {
-      using (var r = new StreamReader(s))
-      {
-        Cons cmdline = Cons.FromList(args);
-        RuntimeExtensions.Eval("(apply load-port {0} {1})", r, cmdline);
-      }
     }
   }
 }
