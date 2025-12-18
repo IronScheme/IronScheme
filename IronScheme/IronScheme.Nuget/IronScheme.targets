@@ -1,5 +1,5 @@
 <Project>
-  <Target Name="unfuck2" BeforeTargets="ResolvePackageAssets" Condition="!Exists('$(MSBuildProjectDirectory)/lib/')">
+  <Target Name="unfuck" BeforeTargets="BeforeBuild">
     <Warning Code="UNFUCK" Text="Ironscheme needs unfucking for real $(MSBuildProjectDirectory)" />
     <Unzip SourceFiles="$(MSBuildThisFileDirectory)libs.zip" DestinationFolder="$(MSBuildProjectDirectory)/lib/" />
 
