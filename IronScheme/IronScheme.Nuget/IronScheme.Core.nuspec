@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Only includes IronScheme.dll</description>
     <releaseNotes>https://github.com/IronScheme</releaseNotes>
-    <copyright>Copyright 2007-2021</copyright>
+    <copyright>Copyright 2007-2025</copyright>
     <tags>scheme ironscheme r6rs</tags>
     <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
     <dependencies>
