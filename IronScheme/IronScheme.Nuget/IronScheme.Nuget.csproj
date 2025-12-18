@@ -28,6 +28,7 @@
 
   <Target Name="CreateNugetPackage" AfterTargets="Restore" Condition="$(PackageName) == ''">
     <Copy SourceFiles="$(MSBuildThisFileDirectory)IronScheme.targets" DestinationFolder="$(NuspecBasePath)" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)IronScheme.props" DestinationFolder="$(NuspecBasePath)" />
     <ZipDirectory SourceDirectory="$(NuspecBasePath)IronScheme\lib" Overwrite="True" DestinationFile="$(NuspecBasePath)libs.zip" />
   </Target>
 </Project>

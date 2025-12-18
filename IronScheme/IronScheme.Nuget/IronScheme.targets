@@ -2,9 +2,5 @@
   <Target Name="unfuck" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/lib/')">
     <Warning Code="UNFUCK" Text="Ironscheme needs one-time unfucking in $(MSBuildProjectDirectory)" />
     <Unzip SourceFiles="$(MSBuildThisFileDirectory)libs.zip" DestinationFolder="$(MSBuildProjectDirectory)/lib/" />
-
-    <ItemGroup>
-      <Content CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" Include="lib/**/*.*" />
-    </ItemGroup>
   </Target>
 </Project>
