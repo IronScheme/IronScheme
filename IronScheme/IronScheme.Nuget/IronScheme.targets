@@ -1,7 +1,10 @@
 <Project>
-  <Target Name="unfuck" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildThisFileDirectory)../contentFiles/any/any/nuget.sls')">
-    <Warning Code="UNFUCK" Text="Ironscheme needs unfucking for real $(MSBuildThisFileDirectory)" />
+  <Target Name="unfuck2" BeforeTargets="ResolvePackageAssets" Condition="!Exists('$(MSBuildProjectDirectory)/lib/')">
+    <Warning Code="UNFUCK" Text="Ironscheme needs unfucking for real $(MSBuildProjectDirectory)" />
+    <Unzip SourceFiles="$(MSBuildThisFileDirectory)libs.zip" DestinationFolder="$(MSBuildProjectDirectory)/lib/" />
 
-    <Delete Files="$(MSBuildThisFileDirectory)../contentFiles/any/any/nuget.sls" />
+    <ItemGroup>
+      <Content CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" Include="lib/**/*.*" />
+    </ItemGroup>
   </Target>
 </Project>

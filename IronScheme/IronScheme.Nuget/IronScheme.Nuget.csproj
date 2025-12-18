@@ -24,6 +24,10 @@
 
     <NuspecProperties>version=$(AppveyorBuildVersion)-beta;sha=$(Sha)</NuspecProperties>
     <NuspecBasePath>..\IronScheme.Console\bin\Release\net20\install-stage\</NuspecBasePath>
-    <NuspecBasePath Condition="$(PackageName) == ''">$(NuspecBasePath)tmp\</NuspecBasePath>
   </PropertyGroup>
+
+  <Target Name="CreateNugetPackage" AfterTargets="Restore" Condition="$(PackageName) == ''">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)IronScheme.targets" DestinationFolder="$(NuspecBasePath)" />
+    <ZipDirectory SourceDirectory="$(NuspecBasePath)IronScheme\lib" Overwrite="True" DestinationFile="$(NuspecBasePath)libs.zip" />
+  </Target>
 </Project>
