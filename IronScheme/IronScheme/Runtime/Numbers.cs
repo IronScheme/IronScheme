@@ -189,7 +189,7 @@ namespace IronScheme.Runtime
       int rr = (int)r;
       if (r != rr)
       {
-        OverflowError("fx+", a, b);
+        OverflowError(SymbolTable.StringToObject("fx+"), a, b);
       }
       return rr;
     }
@@ -201,7 +201,7 @@ namespace IronScheme.Runtime
       int rr = (int)r;
       if (r != rr)
       {
-        OverflowError("fx-", a, b);
+        OverflowError(SymbolTable.StringToObject("fx-"), a, b);
       }
       return rr;
     }
@@ -213,7 +213,7 @@ namespace IronScheme.Runtime
       int rr = (int)r;
       if (r != rr)
       {
-        OverflowError("fx*", a, b);
+        OverflowError(SymbolTable.StringToObject("fx*"), a, b);
       }
       return rr;
     }
@@ -225,7 +225,7 @@ namespace IronScheme.Runtime
       int rr = (int)r;
       if (r != rr)
       {
-        OverflowError("fxarithmetic-shift-left", a, b);
+        OverflowError(SymbolTable.StringToObject("fxarithmetic-shift-left"), a, b);
       }
       return rr;
     }
