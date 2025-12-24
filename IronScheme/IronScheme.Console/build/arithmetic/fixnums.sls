@@ -123,11 +123,6 @@ See docs/license.txt. |#
   (define: (greatest-fixnum -> fixnum)  #x7fffffff)
   (define: (least-fixnum -> fixnum)     #x-80000000)
 
-  (define-syntax checked
-    (syntax-rules ()
-      [(_ name (expr arg ...))
-        (or (expr arg ...) (overflow-error name arg ...))]))
-
   (define-syntax check (lambda (x) (syntax-violation #f)))
 
   (define-syntax define-fx
