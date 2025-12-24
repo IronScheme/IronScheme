@@ -18,5 +18,6 @@
     public static object Raise(object obj) => null;
     public static object RaiseContinueable(object obj) => null;
     public static object WithExceptionHandler(object handler, object thunk) => null;
+    public static object OverflowError(object who, params object[] irritants) => null;
   }
 }
