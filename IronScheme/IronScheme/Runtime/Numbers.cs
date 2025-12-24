@@ -230,11 +230,6 @@ namespace IronScheme.Runtime
       return rr;
     }
 
-    public static object FxPlusInternal(int a, int b) => FxPlus(a, b);
-    public static object FxMinusInternal(int a, int b) => FxMinus(a, b);
-    public static object FxMultiplyInternal(int a, int b) => FxMultiply(a, b);
-    public static object FxShiftLeftInternal(int a, int b) => FxShiftLeft(a, b);
-
     enum NumberClass
     {
       Complex = 1,

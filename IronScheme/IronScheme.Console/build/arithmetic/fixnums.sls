@@ -177,10 +177,10 @@ See docs/license.txt. |#
     ($fx- x 1))
 
   (define-fx (fx+ x1 x2)
-    (checked 'fx+ (fx+internal x1 x2)))
+    (fx+internal x1 x2))
 
   (define-fx (fx* x1 x2)
-    (checked 'fx* (fx*internal x1 x2)))
+    (fx*internal x1 x2))
 
   (define fx-
     (case-lambda:
@@ -189,7 +189,7 @@ See docs/license.txt. |#
           (overflow-error 'fx- x1))
         ($fx- x1)]
       [((x1 : fixnum) (x2 : fixnum) -> fixnum)
-        (checked 'fx- (fx-internal x1 x2))]))
+        (fx-internal x1 x2)]))
 
   (define (overflow-error name . irritants)
     (raise
@@ -210,10 +210,7 @@ See docs/license.txt. |#
       [($fx<? k 0)
         ($fxarithmetic-shift-right x ($fx- k))]
       [else
-        (let ((i (fxarithmetic-shift-left-internal x k)))
-          (unless i
-            (overflow-error 'fxarithmetic-shift x k))
-          i)]))
+        (fxarithmetic-shift-left-internal x k)]))
 
   (define-fx* (fxbit-count x)
     (cond
