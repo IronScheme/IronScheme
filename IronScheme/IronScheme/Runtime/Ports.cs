@@ -93,6 +93,9 @@ namespace IronScheme.Runtime
       }
 
       string fn = Path.GetFullPath(path);
+
+      //Console.WriteLine("{0} | {1} | {2}", basedir, altpath, fn.Replace("\\", "/"));
+
       var pdb = Path.ChangeExtension(fn, ".pdb");
       if (File.Exists(pdb))
       {
@@ -107,7 +110,7 @@ namespace IronScheme.Runtime
             if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
             {
               //Console.Error.WriteLine("LoadFile (Ports.cs:110) {0}", fn);
-              return Assembly.LoadFile(fn);
+              return Assembly.LoadFrom(fn);
             }
             else
             {
@@ -138,7 +141,7 @@ namespace IronScheme.Runtime
         if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
         {
           //Console.Error.WriteLine("LoadFile (Ports.cs:140) {0}", fn);
-          return Assembly.LoadFile(fn);
+          return Assembly.LoadFrom(fn);
         }
         else
         {
