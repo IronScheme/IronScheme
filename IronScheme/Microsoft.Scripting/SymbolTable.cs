@@ -33,7 +33,7 @@ namespace Microsoft.Scripting
             _fieldDict[0] = null;   // initialize the null string
         }
 
-        readonly static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex unichar;// = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static object GetSymbol(int id)
         {
@@ -81,14 +81,18 @@ namespace Microsoft.Scripting
                 throw new ArgumentNullException(Resources.NameMustBeString);
             }
 
-            // convert unicode escapes
-            field = unichar.Replace(field, delegate(Match m)
+            if (field.IndexOf('\\') >= 0)
             {
-              string s = m.Value;
-              s = s.Substring(2, s.Length - 3);
-              int iv = int.Parse(s, System.Globalization.NumberStyles.HexNumber);
-              return char.ConvertFromUtf32(iv);
-            });
+                unichar ??= new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase); 
+                // convert unicode escapes
+                field = unichar.Replace(field, delegate (Match m)
+                {
+                    string s = m.Value;
+                    s = s.Substring(2, s.Length - 3);
+                    int iv = int.Parse(s, System.Globalization.NumberStyles.HexNumber);
+                    return char.ConvertFromUtf32(iv);
+                });
+            }
 
             return StringToIdFast(field);
         }

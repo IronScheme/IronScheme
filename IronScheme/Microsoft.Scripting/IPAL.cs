@@ -25,7 +25,7 @@ namespace Microsoft.Scripting
         void SetLocalSymInfo(LocalBuilder lb, string name);
 
         void DefineAssembly(bool run, string outDir, AssemblyName asmname, string actualModuleName, string outFileName, bool emitDebugInfo, ref AssemblyBuilder ab, ref ModuleBuilder mb);
-        void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress);
+        void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress, string name);
         ISerializer GetSerializer(RecordBinderCallback rb);
     }
 
@@ -69,7 +69,7 @@ namespace Microsoft.Scripting
         public static bool IsTransient(ModuleBuilder mb) => pal.IsTransient(mb);
         public static void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) =>
             pal.MarkSequencePoint(ilg, document, startLine, startColumn, endLine, endColumn);
-        public static void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress) => pal.SerializeConstants(s, mb, compress);
+        public static void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress, string name) => pal.SerializeConstants(s, mb, compress, name);
         public static void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind) => pal.Save(ass, filename, machineKind);
         public static void SetLocalSymInfo(LocalBuilder lb, string name) => pal.SetLocalSymInfo(lb, name);
         public static void DefineAssembly(bool run, string outDir, AssemblyName asmname, string actualModuleName, string outFileName, bool emitDebugInfo, ref AssemblyBuilder ab, ref ModuleBuilder mb) =>

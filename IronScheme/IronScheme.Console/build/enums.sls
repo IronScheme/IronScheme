@@ -37,6 +37,7 @@ See docs/license.txt. |#
       (only (ironscheme) fprintf format)
       (only (ironscheme core) reverse!) ; for reverse!
       (ironscheme contracts)
+      (ironscheme typed)
       (ironscheme records printer)) 
  
    ; type for enumerations
@@ -44,7 +45,7 @@ See docs/license.txt. |#
 
   (define-record-type enum-universe (fields id symbols mapping value))
 
-  (define (enum-type=? enumset1 enumset2)
+  (define: (enum-type=? enumset1 enumset2 -> bool)
     (eq? 
       (enum-universe-id (enum-info enumset1))
       (enum-universe-id (enum-info enumset2))))

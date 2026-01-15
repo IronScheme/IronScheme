@@ -17,13 +17,14 @@ See docs/license.txt. |#
   (import 
     (except (ironscheme) record-type-descriptor? record-constructor-descriptor?)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme contracts)
     (ironscheme unsafe))
     
   (clr-using IronScheme.Runtime.R6RS)
   
-  (define (record-type-descriptor? obj)
+  (define: (record-type-descriptor? obj -> bool)
     (clr-is RecordTypeDescriptor obj))
     
-  (define (record-constructor-descriptor? obj)
+  (define: (record-constructor-descriptor? obj -> bool)
     (clr-is RecordConstructorDescriptor obj)))

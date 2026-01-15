@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.Reflection;
 
 namespace IronScheme.Runtime
 {
@@ -28,6 +29,8 @@ namespace IronScheme.Runtime
     public abstract object Form { get; }
 
     public bool AllowConstantFold { get; set; }
+
+    public abstract MethodInfo[] AllTargets { get; }
   }
 
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Interface, AllowMultiple = false,  Inherited = true)]

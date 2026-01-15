@@ -38,6 +38,7 @@ See docs/license.txt. |#
       boolean?
       procedure?
       condition?)
+    (ironscheme typed)
     (ironscheme unsafe)
     (ironscheme clr))
     
@@ -48,34 +49,40 @@ See docs/license.txt. |#
   (clr-using System.Text)
   (clr-using IronScheme.Scripting) 
   (clr-using IronScheme.Scripting.Math)
+
+  (define-syntax define?
+    (syntax-rules ()
+      [(_ (name obj ...) b b* ...)
+        (define: (name obj ... -> bool)
+            b b* ...)]))
   
-  (define (valuetype-vector? obj)
-    (and (clr-is Array obj)
-         (let ((t (clr-call Type GetElementType (clr-call Object GetType obj))))
-          (clr-prop-get Type IsValueType t))))
+  (define? (valuetype-vector? obj)
+    ($and? (clr-is Array obj)
+           (let ((t (clr-call Type GetElementType (clr-call Object GetType obj))))
+             (clr-prop-get Type IsValueType t))))
   
-  (define (condition? obj)
+  (define? (condition? obj)
     (clr-is IronScheme.Runtime.R6RS.Condition obj))
     
-  (define (fixnum? obj)
+  (define? (fixnum? obj)
     (clr-is Int32 obj))
     
-  (define (flonum? obj)
+  (define? (flonum? obj)
     (clr-is Double obj))
 
-  (define (bignum? obj)
+  (define? (bignum? obj)
     (clr-is IntX obj))
     
-  (define (rectnum? obj)
+  (define? (rectnum? obj)
     (clr-is ComplexFraction obj)) 
   
-  (define (ratnum? obj)
+  (define? (ratnum? obj)
     (clr-is Fraction obj))
   
-  (define (complexnum? obj)
+  (define? (complexnum? obj)
     (clr-is Complex64 obj))
     
-  (define (number? obj)
+  (define? (number? obj)
     ($or? (fixnum? obj)
           (flonum? obj)
           (bignum? obj)
@@ -83,31 +90,31 @@ See docs/license.txt. |#
           (complexnum? obj)
           (rectnum? obj))) 
 
-  (define (clr-string? obj)
+  (define? (clr-string? obj)
     (clr-is String obj))
 
-  (define (stringbuilder? obj)
+  (define? (stringbuilder? obj)
     (clr-is StringBuilder obj))
     
-  (define (string? obj)
-    (or (clr-string? obj) 
-        (stringbuilder? obj)))
+  (define? (string? obj)
+    ($or? (clr-string? obj) 
+          (stringbuilder? obj)))
 
-  (define (char? obj)
-    (or (clr-is Char obj)
-        (clr-is SchemeChar obj)))
+  (define? (char? obj)
+    ($or? (clr-is Char obj)
+          (clr-is SchemeChar obj)))
 
-  (define (vector? obj)
+  (define? (vector? obj)
     (clr-is Object[] obj))
 
-  (define (bytevector? obj)
+  (define? (bytevector? obj)
     (clr-is Byte[] obj))
 
-  (define (symbol? obj)
+  (define? (symbol? obj)
     (clr-is SymbolId obj))
     
-  (define (boolean? obj)
+  (define? (boolean? obj)
     (clr-is Boolean obj))
    
-  (define (procedure? obj)
+  (define? (procedure? obj)
     (clr-is Callable obj)))

@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.IO;
 using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
@@ -18,7 +19,7 @@ namespace IronScheme.Runtime
     public SymbolId Name
     {
       get { return name; }
-    } 
+    }
 
     public Callable RealTarget
     {
@@ -64,7 +65,6 @@ namespace IronScheme.Runtime
           }
         }
 
-
         object a = args.Length == 1 ? Builtins.Car(u) : u;
 
         StringWriter pre = new StringWriter();
@@ -75,8 +75,10 @@ namespace IronScheme.Runtime
 
         if ((Console.LargestWindowWidth | Console.LargestWindowHeight) == 0)
         {
-          Console.Error.WriteLine("{0} -> {1}", prefix, name);
-          Console.Error.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          var writer = "(current-error-port)".Eval<TextWriter>();
+
+          writer.WriteLine("{0} -> {1}", prefix, name);
+          writer.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
 
           object result = realtarget.Call(args);
 
@@ -84,8 +86,8 @@ namespace IronScheme.Runtime
 
           pp.Call(filter == null ? result : filter.Call(result), p);
 
-          Console.Error.WriteLine("{0} <- {1}", prefix, name);
-          Console.Error.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          writer.WriteLine("{0} <- {1}", prefix, name);
+          writer.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
           return result;
         }
         else

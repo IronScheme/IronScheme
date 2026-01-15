@@ -102,6 +102,7 @@ See docs/license.txt. |#
     string-compare
     string-ci-compare)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme unsafe)
     (ironscheme contracts))
     
@@ -189,15 +190,13 @@ See docs/license.txt. |#
       [(UppercaseLetter)           'Lu]
       [else #f]))
       
-  (define (clr-string? obj)
+  (define: (clr-string? obj -> bool)
     (clr-is String obj))  
 
-  (define ->string
-    (typed-lambda (str)
-      ((Object) String)    
-      (if (clr-string? str)
-          str
-          (clr-call Object ToString str))))   
+  (define: (->string str -> String)
+    (if (clr-string? str)
+        str
+        (clr-call Object ToString str)))
         
   (define/contract (string-compare a:string b:string)
     ($string-compare a b))

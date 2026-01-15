@@ -55,9 +55,6 @@ namespace Microsoft.Scripting.Generation.Allocators
         // for closures
         private Dictionary<CodeBlock, Slot> _scopeAccess;
 
-        private List<Slot> _generatorTemps;
-        private int _generatorTempIndex;
-
         public ScopeAllocator(ScopeAllocator parent, StorageAllocator allocator)
         {
             _parent = parent;
@@ -111,21 +108,6 @@ namespace Microsoft.Scripting.Generation.Allocators
         public void AddScopeAccessSlot(CodeBlock block, Slot slot)
         {
             AddAccessSlot(block, ref _scopeAccess, slot);
-        }
-
-        public void AddGeneratorTemp(Slot slot)
-        {
-            if (_generatorTemps == null)
-            {
-                _generatorTemps = new List<Slot>();
-            }
-            _generatorTemps.Add(slot);
-        }
-
-        public Slot GetGeneratorTemp()
-        {
-            Debug.Assert(_generatorTempIndex < _generatorTemps.Count);
-            return _generatorTemps[_generatorTempIndex++];
         }
 
         private Slot GetAccessSlot(CodeBlock block, Dictionary<CodeBlock, Slot> slots)

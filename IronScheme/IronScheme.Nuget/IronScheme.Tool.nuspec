@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Basic IronScheme console with all the libraries</description>
     <releaseNotes>https://github.com/IronScheme</releaseNotes>
-    <copyright>Copyright 2007-2024</copyright>
+    <copyright>Copyright 2007-2025</copyright>
     <tags>scheme ironscheme r6rs</tags>
     <packageTypes>
       <packageType name="DotnetTool" />

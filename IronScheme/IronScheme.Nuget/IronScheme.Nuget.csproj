@@ -11,19 +11,24 @@
 
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    
+
     <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">$([System.Environment]::GetEnvironmentVariable("APPVEYOR_BUILD_VERSION"))</AppveyorBuildVersion>
     <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">0.0.0</AppveyorBuildVersion>
 
     <Sha Condition="$(Sha) == ''">$([System.Environment]::GetEnvironmentVariable("SHA"))</Sha>
     <Sha Condition="$(Sha) == ''">0000000</Sha>
 
-    <PackageName Condition="$(PackageName) == ''">Tool</PackageName>
+    <PackageNameSuffix Condition="$(PackageName) != ''">.$(PackageName)</PackageNameSuffix>
 
-    <NuspecFile>IronScheme.$(PackageName).nuspec</NuspecFile>
+    <NuspecFile>IronScheme$(PackageNameSuffix).nuspec</NuspecFile>
 
-    <NuspecProperties Condition="$(PackageName) == 'Core'">version=$(AppveyorBuildVersion);sha=$(Sha)</NuspecProperties>
-    <NuspecProperties Condition="$(PackageName) != 'Core'">version=$(AppveyorBuildVersion);sha=$(Sha)</NuspecProperties>
+    <NuspecProperties>version=$(AppveyorBuildVersion)-beta;sha=$(Sha)</NuspecProperties>
     <NuspecBasePath>..\IronScheme.Console\bin\Release\net20\install-stage\</NuspecBasePath>
   </PropertyGroup>
+
+  <Target Name="CreateNugetPackage" AfterTargets="Restore" Condition="$(PackageName) == ''">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)IronScheme.targets" DestinationFolder="$(NuspecBasePath)" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)IronScheme.props" DestinationFolder="$(NuspecBasePath)" />
+    <ZipDirectory SourceDirectory="$(NuspecBasePath)IronScheme\lib" Overwrite="True" DestinationFile="$(NuspecBasePath)libs.zip" />
+  </Target>
 </Project>

@@ -278,7 +278,7 @@
         (vector-set! v 10 `(lambda () ,(vector-ref v 10))) ; guard-code
         (vector-set! v 11 `',(vector-ref v 11)) ; guard-req*
         (vector-set! v 12 `',(vector-ref v 12)) ; visible?
-        (if (compile-library filename (cons 'list (vector->list v)))
+        (if (compile-library filename (cons 'list-prim (vector->list v)))
             (parameterize ((allow-library-redefinition #t))
               (try-load-from-file libname filename))
             #f))))

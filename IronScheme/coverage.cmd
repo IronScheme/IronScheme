@@ -3,7 +3,7 @@
 setlocal
 
 dotnet tool install -g dotnet-coverage >nul
-dotnet tool install -g dotnet-ilverify >nul
+dotnet tool install -g dotnet-ilverify --version 9.0.11 >nul
 rem dotnet tool install -g dotnet-reportgenerator-globaltool >nul
 
 del /q output.cobertura.xml

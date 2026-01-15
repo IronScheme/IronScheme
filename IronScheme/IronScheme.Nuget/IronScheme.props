@@ -1,0 +1,5 @@
+<Project>
+    <ItemGroup>
+      <Content CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" Include="lib/**/*.*" />
+    </ItemGroup>
+</Project>

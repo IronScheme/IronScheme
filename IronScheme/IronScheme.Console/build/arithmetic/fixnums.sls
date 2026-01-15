@@ -55,14 +55,16 @@ See docs/license.txt. |#
     fxrotate-bit-field
     fxreverse-bit-field
     fxadd1
-    fxsub1)
-  (import 
+    fxsub1
+
+    overflow-error)
+  (import
     (ironscheme core)
     (ironscheme clr)
     (ironscheme typed)
     (ironscheme unsafe)
     (ironscheme integrable)
-    (except (ironscheme) 
+    (except (ironscheme)
       fixnum-width
       fxif
       fxcopy-bit
@@ -72,7 +74,7 @@ See docs/license.txt. |#
       fxarithmetic-shift-left
       fxarithmetic-shift-right
       fxrotate-bit-field
- 
+
       fxbit-count
       fxlength
       fxfirst-bit-set
@@ -112,51 +114,45 @@ See docs/license.txt. |#
       fx-
       fx+
       fx*
-      fxreverse-bit-field    
+      fxreverse-bit-field
       fxadd1
       fxsub1))
 
-  (define (fixnum-width) 32)
-  
-  (define (greatest-fixnum)  #x7fffffff)
-  (define (least-fixnum)    #x-80000000)
+  (define: (fixnum-width -> fixnum) 32)
 
-  (define-syntax checked
-    (syntax-rules ()
-      [(_ name expr)
-        (or expr (overflow-error name))]))
-        
+  (define: (greatest-fixnum -> fixnum)  #x7fffffff)
+  (define: (least-fixnum -> fixnum)     #x-80000000)
+
   (define-syntax check (lambda (x) (syntax-violation #f)))
-        
+
   (define-syntax define-fx
     (lambda (x)
       (syntax-case x (check)
         [(_ (name formals ...) (check c ...) body body* ...)
-          (with-syntax (((formals* ...) (generate-temporaries #'(formals ...)))
-                        ((type ...) (map (lambda (x) (datum->syntax x 'Int32)) #'(formals ...))))
-            (with-syntax (((checks ...) 
-              (map (lambda (f)
-                     (with-syntax ((f f))
-                       #'(unless (fixnum? f) 
-                          (assertion-violation 'name "not a fixnum" f))))
-                    #'(formals* ...))))
-              #'(define (name formals* ...)
-                  checks ...
-                  ((typed-lambda (formals ...) ((type ...) Object)                    
-                      c ... 
-                      body body* ...)
-                    formals* ...))))]
+          #'(define: (name (formals : fixnum) ... -> fixnum)
+              c ...
+              body body* ...)]
         [(_ (name formals ...) body body* ...)
-          #'(define-fx (name formals ...) (check) body body* ...)]))) 
+          #'(define-fx (name formals ...) (check) body body* ...)])))
+
+  (define-syntax define-fx?
+    (lambda (x)
+      (syntax-case x (check)
+        [(_ (name formals ...) (check c ...) body body* ...)
+          #'(define: (name (formals : fixnum) ... -> bool)
+              c ...
+              body body* ...)]
+        [(_ (name formals ...) body body* ...)
+          #'(define-fx? (name formals ...) (check) body body* ...)])))
 
   (define-syntax define-fx*
     (lambda (x)
       (syntax-case x (check)
         [(_ (name formals ...) (check c ...) body body* ...)
-          (with-syntax ((uname 
+          (with-syntax ((uname
             (datum->syntax #'name
               (string->symbol
-                (string-append 
+                (string-append
                   (symbol->string (syntax->datum #'name))
                   "*")))))
             #'(begin
@@ -168,34 +164,27 @@ See docs/license.txt. |#
   (define-syntax fxabs
     (syntax-rules ()
       [(_ e) (clr-static-call Math (Abs Int32) e)]))
-      
+
   (define-fx (fxadd1 x)
-    ($fx+ x 1))      
+    ($fx+ x 1))
 
   (define-fx (fxsub1 x)
     ($fx- x 1))
 
   (define-fx (fx+ x1 x2)
-    (checked 'fx+ (fx+internal x1 x2)))
+    (fx+internal x1 x2))
 
   (define-fx (fx* x1 x2)
-    (checked 'fx* (fx*internal x1 x2)))
+    (fx*internal x1 x2))
 
   (define fx-
-    (case-lambda
-      [(x1)
-        (unless (fixnum? x1)
-          (assertion-violation 'fx- "not a fixnum" x1))
-        (let: (((x1 : Int32) x1))
-          (when ($fx=? (least-fixnum) x1)
-            (overflow-error 'fx- x1))
-          ($fx- x1))]
-      [(x1 x2)
-        (unless (fixnum? x1)
-          (assertion-violation 'fx- "not a fixnum" x1))
-        (unless (fixnum? x2)
-          (assertion-violation 'fx- "not a fixnum" x2))
-        (checked 'fx- (fx-internal x1 x2))]))
+    (case-lambda:
+      [((x1 : fixnum) -> fixnum)
+        (when ($fx=? (least-fixnum) x1)
+          (overflow-error 'fx- x1))
+        ($fx- x1)]
+      [((x1 : fixnum) (x2 : fixnum) -> fixnum)
+        (fx-internal x1 x2)]))
 
   (define (overflow-error name . irritants)
     (raise
@@ -206,7 +195,7 @@ See docs/license.txt. |#
         (make-irritants-condition irritants))))
 
   (define-fx* (fxarithmetic-shift x k)
-    (check 
+    (check
       (when ($fx<=? k -32)
          (assertion-violation 'fxarithmetic-shift "shift amount less than -31" k))
       (when ($fx>=? k 32)
@@ -216,34 +205,29 @@ See docs/license.txt. |#
       [($fx<? k 0)
         ($fxarithmetic-shift-right x ($fx- k))]
       [else
-        (let ((i (fxarithmetic-shift-left-internal x k)))
-          (unless i
-            (overflow-error 'fxarithmetic-shift x k))
-          i)]))
+        (fxarithmetic-shift-left-internal x k)]))
 
   (define-fx* (fxbit-count x)
-    (cond 
+    (cond
       [($fx<? x 0)
         ($fxnot (fxbit-count ($fxnot x)))]
       [else
-        (let f ((count 0)(x x))
+        (let: f (((count : fixnum) 0)((x : fixnum) x) -> fixnum)
           (if ($fx=? 0 x)
               count
               (f ($fx+ count 1)
                  ($fxand x ($fx- x 1)))))]))
 
   (define-fx* (fxlength x)
-    (if ($fx<? x 0)
-      (fxlength ($fxnot x))
-      (let f ((count 0)(x x))
-        (if ($fx<? 0 x)
-            (f ($fx+ count 1) ($fxarithmetic-shift-right x 1))
-            count))))
+    (let: f (((count : fixnum) 0)((x : fixnum) (if ($fx<? x 0) ($fxnot x) x)) -> fixnum)
+      (if ($fx<? 0 x)
+          (f ($fx+ count 1) ($fxarithmetic-shift-right x 1))
+          count)))
 
   (define-fx (fxfirst-bit-set x)
     (if ($fx=? x 0)
       -1
-      (let f ((count 0)(x x))
+      (let: f (((count : fixnum) 0)((x : fixnum) x) -> fixnum)
         (if (not ($fx=? 0 x))
             (if ($fx=? 1 ($fxand 1 x))
                 count
@@ -251,38 +235,34 @@ See docs/license.txt. |#
                    ($fxarithmetic-shift-right x 1)))
             count))))
 
-  (define-fx (fxbit-set? x k)
+  (define-fx? (fxbit-set? x k)
     (when ($fx<? k 0)
       (assertion-violation 'fxbit-set? "cannot be negative" k))
-    (cond 
+    (cond
       [($fx=? 0 x) #f]
       [($fx>=? k 32) ($fx<? x 0)]
-      [else  
+      [else
         ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))]))
 
   (define-fx (fxnot x1)
     ($fxnot x1))
 
-  (define-syntax define-fx-comparer 
+  (define-syntax define-fx-comparer
     (lambda (x)
       (syntax-case x ()
         [(_ name)
-          (with-syntax ((uname 
+          (with-syntax ((uname
               (datum->syntax #'name
                 (string->symbol
                   (string-append "$"
                     (symbol->string (syntax->datum #'name)))))))
             #'(define name
-                (case-lambda
-                  [(x1 x2)
-                    (unless (fixnum? x1)
-                      (assertion-violation 'name "not a fixnum" x1))
-                    (unless (fixnum? x2)
-                      (assertion-violation 'name "not a fixnum" x2))
+                (case-lambda:
+                  [((x1 : fixnum) (x2 : fixnum) -> bool)
                     (uname x1 x2)]
-                  [(x1 x2 . rest)
-                    (let f ((a x1)(b (cons x2 rest)))
-                      (cond 
+                  [((x1 : fixnum) (x2 : fixnum) rest (... ...) -> bool)
+                    (let: f (((a : fixnum) x1)(b (cons x2 rest)) -> bool)
+                      (cond
                         [(null? b) #t]
                         [(name a ($car b))
                           (f ($car b) ($cdr b))]
@@ -298,25 +278,18 @@ See docs/license.txt. |#
     (lambda (x)
       (syntax-case x ()
         [(_ name id)
-          (with-syntax ((uname 
+          (with-syntax ((uname
               (datum->syntax #'name
                 (string->symbol
                   (string-append "$"
-                    (symbol->string (syntax->datum #'name)))))))      
-            #'(define name 
-                (case-lambda
-                  [() id]
-                  [(x)
-                    (unless (fixnum? x)
-                      (assertion-violation 'name "not a fixnum" x))
-                    x]
-                  [(x1 x2)
-                    (unless (fixnum? x1)
-                      (assertion-violation 'name "not a fixnum" x1))
-                    (unless (fixnum? x2)
-                      (assertion-violation 'name "not a fixnum" x2))
+                    (symbol->string (syntax->datum #'name)))))))
+            #'(define name
+                (case-lambda:
+                  [(-> fixnum) id]
+                  [((x : fixnum) -> fixnum) x]
+                  [((x1 : fixnum) (x2 : fixnum) -> fixnum)
                     (uname x1 x2)]
-                  [args
+                  [(args (... ...) -> fixnum)
                     (fold-left name (name) args)])))])))
 
   (define-fx-bitop fxand -1)
@@ -331,9 +304,9 @@ See docs/license.txt. |#
         (overflow-error 'fxdiv x1 x2)))
     (cond
       [($fx=? 0 x1) 0]
-      [($fx<? 0 x1) 
+      [($fx<? 0 x1)
         ($fxdiv x1 x2)]
-      [($fx<? 0 x2) 
+      [($fx<? 0 x2)
         ($fx- ($fxdiv ($fx+ x1 1) x2) 1)]
       [else
         ($fx+ ($fxdiv ($fx+ x1 1) x2) 1)]))
@@ -346,13 +319,13 @@ See docs/license.txt. |#
         (overflow-error 'fxmod x1 x2)))
     ($fx- 0 ($fx- ($fx* (fxdiv* x1 x2) x2) x1)))
 
-  (define-fx (fxdiv-and-mod x1 x2)
+  (define: (fxdiv-and-mod (x1 : fixnum) (x2 : fixnum))
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv-and-mod "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (overflow-error 'fxdiv-and-mod x1 x2))    
+      (overflow-error 'fxdiv-and-mod x1 x2))
     (let ((d (fxdiv* x1 x2)))
-      (values d ($fx- 0 ($fx- ($fx* d x2) x1))))) 
+      (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
 
   (define-fx* (fxdiv0 x1 x2)
     (check
@@ -373,55 +346,55 @@ See docs/license.txt. |#
           ($fx+ d 1)]
         [else
           ($fx- d 1)])))
-    
+
   (define-fx (fxmod0 x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxmod0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
       (overflow-error 'fxmod0 x1 x2))
     ($fx- 0 ($fx- ($fx* (fxdiv0* x1 x2) x2) x1)))
-    
-  (define-fx (fxdiv0-and-mod0 x1 x2)
+
+  (define: (fxdiv0-and-mod0 (x1 : fixnum) (x2 : fixnum))
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv0-and-mod0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (overflow-error 'fxdiv0-and-mod0 x1 x2))  
+      (overflow-error 'fxdiv0-and-mod0 x1 x2))
     (let ((d (fxdiv0* x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
-      
-  (define-fx* (fxpositive? r)
+
+  (define-fx? (fxpositive? r)
     ($fx<? 0 r))
 
-  (define-fx* (fxnegative? r)
+  (define-fx? (fxnegative? r)
     ($fx>? 0 r))
 
-  (define-fx* (fxzero? r)
+  (define-fx? (fxzero? r)
     ($fx=? 0 r))
 
-  (define-fx* (fxeven? n)
+  (define-fx? (fxeven? n)
     ($fx=? 0 ($fxand n 1)))
 
-  (define-fx* (fxodd? n)
+  (define-fx? (fxodd? n)
     ($fx=? 1 ($fxand n 1)))
 
   ; TODO: improve this
   (define (fxmax a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmax "not a fixnum" a))
-    (fold-left 
-      (lambda (a b) 
+    (fold-left
+      (lambda (a b)
         (if (fx<? a b) b a))
-      a 
+      a
       rest))
 
   ; TODO: improve this
   (define (fxmin a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmin "not a fixnum" a))
-    (fold-left 
-      (lambda (a b) 
+    (fold-left
+      (lambda (a b)
         (if (fx>? a b) b a))
-      a 
+      a
       rest))
 
   (define-fx* (fxif fx1 fx2 fx3)
@@ -431,35 +404,35 @@ See docs/license.txt. |#
   (define-fx* (fxcopy-bit fx1 fx2 fx3)
     (check
       (when (or ($fx<? fx2 0) ($fx>=? fx2 31))
-        (assertion-violation 'fxcopy-bit "fx2 must be between 0 and 30 inclusive" fx2))     
+        (assertion-violation 'fxcopy-bit "fx2 must be between 0 and 30 inclusive" fx2))
       (unless ($fx=? ($fxior fx3 1) 1)
         (assertion-violation 'fxcopy-bit "fx3 must be 0 or 1" fx3)))
     (fxif* ($fxarithmetic-shift-left 1 fx2)
       ($fxarithmetic-shift-left fx3 fx2) fx1))
-  
+
   (define-fx* (fxbit-field fx1 fx2 fx3)
     (check
       (unless ($fx<=? fx2 fx3)
-        (assertion-violation 'fxbit-field "fx2 must be less than or equal fx3" fx2 fx3)) 
+        (assertion-violation 'fxbit-field "fx2 must be less than or equal fx3" fx2 fx3))
       (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
-        (assertion-violation 'fxbit-field "fx2 must be between 0 and 31 inclusive" fx2)) 
+        (assertion-violation 'fxbit-field "fx2 must be between 0 and 31 inclusive" fx2))
       (when (or ($fx<? fx3 0) ($fx>=? fx3 32))
         (assertion-violation 'fxbit-field "fx3 must be between 0 and 31 inclusive" fx3)))
-    ($fxarithmetic-shift-right 
+    ($fxarithmetic-shift-right
       ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
 
   (define-fx* (fxcopy-bit-field to start end from)
     (check
       (unless ($fx<=? start end)
-        (assertion-violation 'fxcopy-bit-field "start must be less than or equal end" start end)) 
+        (assertion-violation 'fxcopy-bit-field "start must be less than or equal end" start end))
       (when (or ($fx<? start 0) ($fx>=? start 32))
-        (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start)) 
+        (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start))
       (when (or ($fx<? end 0) ($fx>=? end 32))
         (assertion-violation 'fxcopy-bit-field "end must be between 0 and 31 inclusive" end)))
-    (fxif* 
-      ($fxand 
-        ($fxarithmetic-shift-left -1 start) 
+    (fxif*
+      ($fxand
+        ($fxarithmetic-shift-left -1 start)
         ($fxnot ($fxarithmetic-shift-left -1 end)))
       ($fxarithmetic-shift-left from start)
       to))
@@ -476,9 +449,9 @@ See docs/license.txt. |#
 
   (define-fx (fxrotate-bit-field n start end count)
     (unless ($fx<=? start end)
-      (assertion-violation 'fxrotate-bit-field "start must be less than or equal end" start end))  
+      (assertion-violation 'fxrotate-bit-field "start must be less than or equal end" start end))
     (when (or ($fx<? start 0) ($fx>=? start 32))
-      (assertion-violation 'fxrotate-bit-field "start must be between 0 and 31 inclusive" start)) 
+      (assertion-violation 'fxrotate-bit-field "start must be between 0 and 31 inclusive" start))
     (when (or ($fx<? end 0) ($fx>=? end 32))
       (assertion-violation 'fxrotate-bit-field "end must be between 0 and 31 inclusive" end))
     (unless ($fx<=? count ($fx- end start))
@@ -486,19 +459,19 @@ See docs/license.txt. |#
     (let* ((width ($fx- end start))
            (field1 (fxbit-field* n start ($fx- end count)))
            (field2 (fxbit-field* n start end)))
-       (fxcopy-bit-field* n start end 
-        ($fxior 
-          ($fxarithmetic-shift-left field1 count) 
+       (fxcopy-bit-field* n start end
+        ($fxior
+          ($fxarithmetic-shift-left field1 count)
           ($fxarithmetic-shift-right field2 ($fx- width count))))))
 
-  ;; from larceny        
+  ;; from larceny
   (define-fx (fxreverse-bit-field x1 start end)
     (unless ($fx<=? start end)
         (assertion-violation 'fxreverse-bit-field "start must be less than or equal end" start end))
     (when (or ($fx<? start 0) ($fx>=? start 32))
-      (assertion-violation 'fxreverse-bit-field "start must be between 0 and 31 inclusive" start)) 
+      (assertion-violation 'fxreverse-bit-field "start must be between 0 and 31 inclusive" start))
     (when (or ($fx<? end 0) ($fx>=? end 32))
-      (assertion-violation 'fxreverse-bit-field "end must be between 0 and 31 inclusive" end))          
+      (assertion-violation 'fxreverse-bit-field "end must be between 0 and 31 inclusive" end))
     (do ((width ($fx- end start) ($fx- width 1))
          (bits  (fxbit-field* x1 start end)
                 ($fxarithmetic-shift-right bits 1))

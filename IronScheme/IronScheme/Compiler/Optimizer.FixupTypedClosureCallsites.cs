@@ -7,6 +7,8 @@
 
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
+using System;
+using System.Net.Configuration;
 
 namespace IronScheme.Compiler
 {
@@ -20,16 +22,26 @@ namespace IronScheme.Compiler
         p0.WalkNode(Root);
       }
 
+      // WHY IS THIS NEEDED? build breaks without it
       class Pass0 : DeepWalker
       {
         protected override void PostWalk(MethodCallExpression node)
         {
           base.PostWalk(node);
 
-          var i = Unwrap(node.Instance);
+          var i = Unwrap(node.Instance) as BoundExpression;
 
           if (i != null && node.Method.Name == "Call" && typeof(IronScheme.Runtime.Typed.ITypedCallable).IsAssignableFrom(i.Type))
           {
+            if (SimpleGenerator.descriptorshack2.TryGetValue(i.Variable.AssumedValue, out var cbd))
+            {
+              if (cbd.varargs)
+              {
+                // hack but is what it is for now
+                return;
+              }
+            }
+
             var mi = i.Type.GetMethod("Invoke");
             node.Method = mi;
             node.Instance = i;

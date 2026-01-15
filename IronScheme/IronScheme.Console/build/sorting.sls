@@ -13,10 +13,10 @@ See docs/license.txt. |#
     (except (rnrs) list-sort vector-sort vector-sort!)
     (rnrs mutable-pairs)
     (ironscheme unsafe)
-    (ironscheme contracts)
+    (ironscheme typed)
     (ironscheme clr))
   
-  (define/contract (list-sort less?:procedure seq:list)
+  (define: (list-sort (less? : procedure) (seq : list) -> list)
     ;; "sort.scm" from SLIB
     ;; Author: Richard A. O'Keefe (based on Prolog code by D.H.D.Warren)
     ;; This code is in the public domain.
@@ -93,17 +93,17 @@ See docs/license.txt. |#
 
     (list-sort! less? (append seq '())))      
                        
-  (define/contract (vector-sort! pred?:procedure vec:vector)
+  (define: (vector-sort! (pred? : procedure)(vec : vector))
     (clr-guard (e [e (assertion-violation 'vector-sort! (clr-prop-get Exception Message e) pred? vec)])
       (clr-static-call Array 
                        (Sort #(Object) Object[] (Comparison Object))
                        vec                      
-                       (lambda (a b)
+                       (lambda: (a b -> fixnum)
                          (if (eq? a b) 
                              0
                              (if (pred? a b)
                                  -1
                                  1))))))
 
-  (define/contract (vector-sort pred?:procedure vec:vector)
+  (define: (vector-sort (pred? : procedure)(vec : vector) -> vector)
     (list->vector (list-sort pred? (vector->list vec)))))

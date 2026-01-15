@@ -115,6 +115,23 @@ namespace IronScheme.Runtime
       }
     }
 
+    public override MethodInfo[] AllTargets
+    {
+      get
+      {
+        List<MethodInfo> mis = new List<MethodInfo>();
+        foreach (MethodBase mb in methods)
+        {
+          MethodInfo mi = mb as MethodInfo;
+          if (mi != null)
+          {
+            mis.Add(mi);
+          }
+        }
+        return mis.ToArray();
+      }
+    }
+
     public override string ToString()
     {
       return Name;

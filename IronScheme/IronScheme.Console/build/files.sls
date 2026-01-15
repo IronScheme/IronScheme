@@ -14,41 +14,45 @@ See docs/license.txt. |#
     
   (import 
     (except (rnrs) file-exists? delete-file)
-    (only (ironscheme) typed-lambda)
     (ironscheme contracts)
+    (ironscheme typed)
     (ironscheme clr))
     
   (clr-using System.IO)
   (clr-using Oyster.Math)
   (clr-using IronScheme.Scripting.Math)
 
-  (define ->string
-    (typed-lambda (str)
-      ((Object) String)    
-      (if (clr-is String str)
-          str
-          (clr-call Object ToString str))))   
-    
-  (define/contract (file-exists? fn:string)
+  (define: (->string str -> string)
+    (if (clr-is String str)
+        str
+        (clr-call Object ToString str)))
+
+  (define: (file-exists? fn -> bool)
+    (unless (string? fn)
+      (assertion-violation 'file-exists? "not a string" fn))
     (clr-static-call File Exists (->string fn)))
     
   (define/contract (delete-file fn:string)
     (clr-static-call File Delete (->string fn)))
     
-  (define/contract (get-directory-name path)
+  (define: (get-directory-name path -> string)
+    (unless (string? path)
+      (assertion-violation 'get-directory-name "not a string" path))
     (clr-static-call Path GetDirectoryName (->string path)))   
     
-  (define (get-last-write-time filename)
+  (define: (get-last-write-time filename -> DateTime)
+    (unless (string? filename)
+      (assertion-violation 'get-last-write-time "not a string" filename))
     (clr-static-call File GetLastWriteTime (->string filename)))
     
-  (define (file-mtime filename)
-    (let ((dt (clr-static-call File (GetLastWriteTime String) filename)))
+  (define: (file-mtime filename -> IntX)
+    (let ((dt (get-last-write-time filename)))
       (clr-static-call IntX (Create Int64) (clr-prop-get DateTime Ticks dt))))
     
-  (define (compare-time t1 t2)
-    (clr-call IComparable CompareTo t1 t2))    
+  (define: (compare-time (t1 : DateTime)(t2 : DateTime) -> fixnum)
+    (clr-call DateTime CompareTo t1 t2))    
     
-  (define/contract (file-newer? file1:string file2:string)
+  (define: (file-newer? file1 file2 -> bool)
     (let ((r (compare-time (get-last-write-time file1)
                            (get-last-write-time file2))))
       (fx>=? r 0))))

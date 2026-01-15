@@ -66,6 +66,11 @@ namespace Microsoft.Scripting.Ast
           {
             _operand.EmitAs(cg, typeof(object));
           }
+          else if (NodeType == AstNodeType.Convert && _operand is ConstantExpression && _type.IsValueType
+           && ((ConstantExpression) _operand).Value == null)
+          {
+            cg.EmitConstant(Activator.CreateInstance(_type));
+          }
           else
           {
             _operand.Emit(cg);

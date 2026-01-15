@@ -183,51 +183,51 @@ namespace IronScheme.Runtime
     #region math
 
     [Builtin("fx+internal", AllowConstantFold = true)]
-    public static object FxPlusInternal(int a, int b)
+    public static int FxPlus(int a, int b)
     {
       long r = (long)a + b;
       int rr = (int)r;
       if (r != rr)
       {
-        return FALSE;
+        OverflowError(SymbolTable.StringToObject("fx+"), a, b);
       }
-      return RuntimeHelpers.Int32ToObject(rr);
+      return rr;
     }
 
     [Builtin("fx-internal", AllowConstantFold = true)]
-    public static object FxMinusInternal(int a, int b)
+    public static int FxMinus(int a, int b)
     {
       long r = (long)a - b;
       int rr = (int)r;
       if (r != rr)
       {
-        return FALSE;
+        OverflowError(SymbolTable.StringToObject("fx-"), a, b);
       }
-      return RuntimeHelpers.Int32ToObject(rr);
+      return rr;
     }
 
     [Builtin("fx*internal", AllowConstantFold = true)]
-    public static object FxMultiplyInternal(int a, int b)
+    public static int FxMultiply(int a, int b)
     {
       long r = (long)a * b;
       int rr = (int)r;
       if (r != rr)
       {
-        return FALSE;
+        OverflowError(SymbolTable.StringToObject("fx*"), a, b);
       }
-      return RuntimeHelpers.Int32ToObject(rr);
+      return rr;
     }
 
     [Builtin("fxarithmetic-shift-left-internal", AllowConstantFold = true)]
-    public static object FxShiftLeftInternal(int a, int b)
+    public static int FxShiftLeft(int a, int b)
     {
       long r = (long)a << b;
       int rr = (int)r;
       if (r != rr)
       {
-        return FALSE;
+        OverflowError(SymbolTable.StringToObject("fxarithmetic-shift-left"), a, b);
       }
-      return RuntimeHelpers.Int32ToObject(rr);
+      return rr;
     }
 
     enum NumberClass
@@ -611,7 +611,7 @@ namespace IronScheme.Runtime
               {
                 r++;
               }
-                           
+
               if (ff < 0 ^ ss < 0)
               {
                 r = -r;

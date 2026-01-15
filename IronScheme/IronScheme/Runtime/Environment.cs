@@ -11,6 +11,8 @@ using System.Text;
 using Microsoft.Scripting;
 using System.Threading;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace IronScheme.Runtime
 {
@@ -25,86 +27,98 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Disassemble(object proc, object argcount)
     {
-      if (proc is Closure)
+      var error = "(current-error-port)".Eval<TextWriter>();
+      return Disassemble(proc, argcount, error);
+    }
+
+    [Builtin]
+    public static object Disassemble(object proc, object argcount, TextWriter writer)
+    {
+      var c = RequiresNotNull<Callable>(proc);
+      var at = c.AllTargets;
+      var tc = at.Length;
+      // implies case closure
+      if (tc > 1)
       {
-        var c = RequiresNotNull<Closure>(proc);
-        var st = c.Targets;
-        var vt = c.VarargTargets;
-        var tc = st.Length + vt.Length;
-        // implies case closure
-        if (tc > 1)
+        // check for valid arg count
+        if (argcount != FALSE)
         {
-          // check for valid arg count
-          if (argcount != FALSE)
+          int ac = Requires<int>(argcount);
+          // now figure out what can be used...
+
+          foreach (var m in at)
           {
-            int ac = Requires<int>(argcount);
-            // now figure out what can be used...
-
-            foreach (var m in st)
+            var p = m.GetParameters();
+            var pc = p.Length;
+            if (p.Length > 0 && p[0].ParameterType == typeof(CodeContext))
             {
-              if (m.GetParameters().Length == ac)
-              {
-                return DisassembleMethod(m);
-              }
+              pc -= 1;
             }
-
-            foreach (var m in vt)
+            if (pc == ac)
             {
-              if (m.GetParameters().Length <= ac - 1)
-              {
-                return DisassembleMethod(m);
-              }
+              return DisassembleMethod(m, writer);
             }
-
-            return AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
           }
-          else
-          {
-            return AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
-          }
-        }
-        else if (tc == 0)
-        {
-          return AssertionViolation("disassemble", "not possible on procedure", proc);
-        }
 
-        if (st.Length == 1)
-        {
-          return DisassembleMethod(st[0]);
+          return AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
         }
         else
         {
-          return DisassembleMethod(vt[0]);
+          return AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
         }
       }
-      else
+      else if (tc == 0)
       {
-        return AssertionViolation("disassemble", "builtin procedures not supported, consult the source code", proc);
+        return AssertionViolation("disassemble", "not possible on procedure", proc);
+      }
+      else // if (tc == 1) // only thing left
+      {
+        return DisassembleMethod(at[0], writer);
       }
     }
 
-    static object DisassembleMethod(MethodInfo meth)
+    static object DisassembleMethod(MethodInfo meth, TextWriter writer)
     {
-      Console.WriteLine(meth);
+      var name = meth.Name;
+      var closures = new List<MethodInfo>();
+
+      writer.WriteLine(meth);
 
       var locals = meth.GetMethodBody().LocalVariables;
 
       if (locals.Count > 0)
       {
-        Console.WriteLine(".locals init (");
-       
+        writer.WriteLine(".locals init (");
+
         foreach (var l in locals)
         {
-          Console.WriteLine("  {0}", l);
+          writer.WriteLine("  {0}", l);
         }
 
-        Console.WriteLine(")");
+        writer.WriteLine(")");
       }
 
       foreach (var inst in Reflection.Disassembler.GetInstructions(meth))
       {
-        Console.WriteLine(inst);
+        writer.WriteLine(inst);
+
+        if (inst.OpCode == OpCodes.Ldftn && inst.Operand is MethodInfo)
+        {
+          var mi = (MethodInfo)inst.Operand;
+          if (mi.Name.StartsWith(name) && mi.Name != name)
+          {
+            closures.Add(mi);
+          }
+        }
       }
+
+      foreach (var c in closures)
+      {
+        writer.WriteLine();
+        writer.WriteLine("// Closure:");
+        DisassembleMethod(c, writer);
+      }
+
       return Unspecified;
     }
 

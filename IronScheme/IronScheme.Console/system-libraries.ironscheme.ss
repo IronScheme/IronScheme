@@ -48,6 +48,7 @@ See docs/license.txt. |#
     (ironscheme syntax symbolic-case)
     
     (ironscheme typed)
+    (ironscheme typed integrable)
     (ironscheme typed struct)
     (ironscheme typed struct-case)
     
@@ -59,10 +60,6 @@ See docs/license.txt. |#
 (let ()
   (import (ironscheme typed language))
   #f)
-  
-(let ()
-  (import (ironscheme typed fixnums))
-  (import (ironscheme typed flonums))
-  #f)
+
   
 

@@ -75,7 +75,7 @@ namespace IronScheme.Compiler
       cc.Scope.SetName((SymbolId)s, cwv);
 
       //Builtins.Exact(1);
-      
+
       RuntimeHelpers.Assert = AssertionViolation;
       Closure.AssertionViolation = AssertionViolation;
       Closure.Cons = Builtins.Cons;
@@ -98,8 +98,8 @@ namespace IronScheme.Compiler
     {
 #if DEBUG
       return (mi.ReturnType == typeof(object) || mi.ReturnType == typeof(Callable))
-        && Array.TrueForAll(mi.GetParameters(), 
-        pi => (pi.Position == 0 && pi.ParameterType == typeof(CodeContext)) || 
+        && Array.TrueForAll(mi.GetParameters(),
+        pi => (pi.Position == 0 && pi.ParameterType == typeof(CodeContext)) ||
           pi.ParameterType == typeof(object) || pi.ParameterType == typeof(int) || // TODO: find a better way to deal with this
           (pi.ParameterType == typeof(object[]) && pi.IsDefined(typeof(ParamArrayAttribute), false)));
 #else
@@ -258,7 +258,7 @@ namespace IronScheme.Compiler
     protected internal static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
-        delegate(Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
+        delegate (Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
 
       MethodBinder listbinder = ((BuiltinMethod)Context.Scope.LookupName(((SymbolId)(proper ? list : liststar)))).Binder;
 
@@ -321,7 +321,7 @@ namespace IronScheme.Compiler
         targets.Add(c.codeblock);
         arities.Add(Ast.Constant(c.arity));
       }
-      
+
       return Ast.SimpleCallHelper(Closure_MakeCase,
         Ast.NewArrayHelper(typeof(Delegate[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
     }
@@ -459,7 +459,7 @@ namespace IronScheme.Compiler
 
       return e;
     }
-    
+
     static Statement OptimizeBody(Statement cbbody)
     {
       if (cbbody is BlockStatement)
@@ -467,9 +467,9 @@ namespace IronScheme.Compiler
         BlockStatement bs = cbbody as BlockStatement;
 
         List<Statement> newstmts = new List<Statement>();
-        
+
         int i = 0;
-        
+
         for (; i < bs.Statements.Count - 1; i++)
         {
           Statement s = bs.Statements[i];
@@ -554,7 +554,7 @@ namespace IronScheme.Compiler
         {
 
         }
-      
+
       }
 
       return Ast.Return(e);
@@ -780,7 +780,7 @@ namespace IronScheme.Compiler
 
     static Type[] GetExpressionTypes(Expression[] expr)
     {
-      return Array.ConvertAll<Expression, Type>(expr, delegate(Expression e) { return e.Type; });
+      return Array.ConvertAll<Expression, Type>(expr, delegate (Expression e) { return e.Type; });
     }
 
     //[ThreadStatic]
